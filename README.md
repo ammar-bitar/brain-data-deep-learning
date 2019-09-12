@@ -1,1 +1,1 @@
-# brain-data-deep-learning
+# Decoding Brain Data using Deep Learning techniques
