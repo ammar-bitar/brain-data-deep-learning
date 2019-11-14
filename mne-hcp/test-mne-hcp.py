@@ -61,10 +61,10 @@ raw = hcp.read_raw(subject=subject, hcp_path=hcp_path,
 #                    hcp_path=op.curdir, return_fixations_motor=False):
 
 
-print(raw.times[0])
-print(raw.times[1])
-print(raw.times[0].shape)
-print(raw.times.shape)
+#print(raw.times[0])
+#print(raw.times[1])
+#print(raw.times[0].shape)
+#print(raw.times.shape)
 #print(type(epochs))
 raw.load_data()
 
@@ -93,23 +93,23 @@ apply_ref_correction(raw)
 ###############################################################################
 # That was the easiest part! Let's now plot everything.
 
-#plt.figure(figsize=(9, 6))
-#freqs, psd = welch(x_meg, raw.info['sfreq'], window='hanning', nperseg=n_fft,noverlap=int(n_fft * 0.8))
-#print(np.array(freqs).shape)
-#print(np.array(psd).shape)
-#plot_psd(x_meg, Fs=raw.info['sfreq'], NFFT=n_fft, label='MEG', color='black')
-#plot_psd(x_meg_ref, Fs=raw.info['sfreq'], NFFT=n_fft, label='MEG-REF',
-#         color='red')
-#plot_psd(raw[meg_picks][0][:, ::decim_show].mean(0), Fs=raw.info['sfreq'],
-#         NFFT=n_fft, label='MEG-corrected', color='orange')
-#
-#plt.legend()
-#plt.xticks(np.log10([0.1, 1, 10, 100]), [0.1, 1, 10, 100])
-#plt.xlim(np.log10([0.1, 300]))
-#plt.xlabel('log10(frequency) [Hz]')
-#plt.ylabel('Power Spectral Density [dB]')
-#plt.grid()
-#plt.show()
+plt.figure(figsize=(9, 6))
+freqs, psd = welch(x_meg, raw.info['sfreq'], window='hanning', nperseg=n_fft,noverlap=int(n_fft * 0.8))
+print(np.array(freqs).shape)
+print(np.array(psd).shape)
+plot_psd(x_meg, Fs=raw.info['sfreq'], NFFT=n_fft, label='MEG', color='black')
+plot_psd(x_meg_ref, Fs=raw.info['sfreq'], NFFT=n_fft, label='MEG-REF',
+         color='red')
+plot_psd(raw[meg_picks][0][:, ::decim_show].mean(0), Fs=raw.info['sfreq'],
+         NFFT=n_fft, label='MEG-corrected', color='orange')
+
+plt.legend()
+plt.xticks(np.log10([0.1, 1, 10, 100]), [0.1, 1, 10, 100])
+plt.xlim(np.log10([0.1, 300]))
+plt.xlabel('log10(frequency) [Hz]')
+plt.ylabel('Power Spectral Density [dB]')
+plt.grid()
+plt.show()
 
 ###############################################################################
 # We can see that the ref correction removes low frequencies which is expected
@@ -118,19 +118,19 @@ apply_ref_correction(raw)
 ###############################################################################
 # By comparing single channel time series we can also see the detrending effect
 
-#chan1c = raw[meg_picks[0]][0]
-#ch_name = raw.ch_names[meg_picks[0]]
-#
-#plt.figure()
-#plt.plot(raw.times, chan1.ravel() * 1e15, label='%s before' % ch_name,
-#         color='black')
-#plt.plot(raw.times, chan1c.ravel() * 1e15, label='%s after' % ch_name,
-#         color='orange')
-#plt.xlim(raw.times[[0, -1]])
-#plt.legend(loc='upper left')
-#plt.ylabel('Magnetometer [fT]')
-#plt.xlabel('Time [seconds]')
-#plt.grid()
-#plt.show()
+chan1c = raw[meg_picks[0]][0]
+ch_name = raw.ch_names[meg_picks[0]]
+
+plt.figure()
+plt.plot(raw.times, chan1.ravel() * 1e15, label='%s before' % ch_name,
+         color='black')
+plt.plot(raw.times, chan1c.ravel() * 1e15, label='%s after' % ch_name,
+         color='orange')
+plt.xlim(raw.times[[0, -1]])
+plt.legend(loc='upper left')
+plt.ylabel('Magnetometer [fT]')
+plt.xlabel('Time [seconds]')
+plt.grid()
+plt.show()
 
 #print(
