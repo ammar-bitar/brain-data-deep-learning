@@ -19,7 +19,7 @@ inputs = []
 convs = []
 
 for i in range(window_size):
-    input = Input(shape=(mesh_xsize, mesh_ysize, 1))
+    input = Input(shape=(mesh_rows, mesh_columns, 1))
     inputs.append(input)
 
 for i in range(window_size):
