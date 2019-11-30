@@ -2,6 +2,7 @@ from keras.models import Model
 from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout, Input, LSTM, Convolution2D
 from keras.layers.merge import concatenate
 from keras.utils import plot_model
+from keras.layers import Embedding
 
 window_size = 5
 mesh_rows = 20
