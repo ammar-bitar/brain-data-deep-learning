@@ -25,6 +25,7 @@ Its corresponding keras model is the following:
 ## Parallel CNN + LSTM
 
 This one is coming from the same paper cited above, its schema is :
+
 <img src="parallel_schema_paper.png" width=40% height=40%>
 
 Its corresponding model is:
@@ -38,7 +39,7 @@ Based on the model available in the following [github repository](https://github
 
 Its model is:
 
-<img src="eeg_net_model.png">
+<img src="eeg_net_model.png" height=50%>
 
 ## Capsule Networks
 
