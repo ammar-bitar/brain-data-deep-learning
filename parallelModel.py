@@ -14,7 +14,7 @@ from keras.layers.merge import concatenate
 from keras.utils import plot_model
 import numpy as np
 
-"""# CNN model"""
+""""# CNN model""""
 
 window_size = 5
 num_channels = 128
