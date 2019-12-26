@@ -1,0 +1,13 @@
+Summary of the model used for experiment1 : 
+
+window_size: 5
+cnn_activation: tanh
+hidden_activation: tanh
+model_activation: sigmoid
+pool_size: (1, 1)
+number_conv2D_filters: 10
+kernel_shape: 7
+number_lstm_cells: 10
+number_nodes_hidden: 10
+loss: binary_crossentropy
+optimizer: sgd

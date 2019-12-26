@@ -1,0 +1,5 @@
+Epoch 0,training_acuracy:0.54,trainig_loss:0.69,validation_accuracy:0.60,validation_loss:0.68
+Epoch 1,training_acuracy:0.58,trainig_loss:0.68,validation_accuracy:0.62,validation_loss:0.67
+Epoch 2,training_acuracy:0.62,trainig_loss:0.67,validation_accuracy:0.57,validation_loss:0.67
+Epoch 3,training_acuracy:0.57,trainig_loss:0.67,validation_accuracy:0.59,validation_loss:0.66
+Epoch 4,training_acuracy:0.60,trainig_loss:0.66,validation_accuracy:0.59,validation_loss:0.65

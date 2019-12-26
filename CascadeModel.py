@@ -14,7 +14,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers.merge import concatenate
+from tensorflow.keras.layers import concatenate
 from tensorflow.keras.layers import Conv2D, MaxPool2D, LSTM
 from tensorflow.keras.layers import Reshape
 
