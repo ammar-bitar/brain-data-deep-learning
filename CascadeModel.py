@@ -9,111 +9,57 @@ Original file is located at
 
 #@title Run Imports (double click to open) { form-width: "15%", display-mode: "form" }
 
-from keras.utils import plot_model
-from keras.models import Model
-from keras.layers import Input
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers.pooling import MaxPooling2D
-from keras.layers.merge import concatenate
-from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout, Input, LSTM, Convolution2D
-from keras.layers import Embedding
-from keras.layers import Reshape
-from keras import optimizers
-import numpy as np
-from sklearn.model_selection import train_test_split
 
-#@title Unimportant custom model (double click to open) { form-width: "15%", display-mode: "form" }
-def custom_test_model():
-  visible1 = Input(shape=(64,64,1))
-  conv11 = Conv2D(32, kernel_size=4, activation='relu')(visible1)
-  pool11 = MaxPooling2D(pool_size=(2, 2))(conv11)
-  flat1 = Flatten()(pool11)
-  visible2 = Input(shape=(32,32,3))
-  conv21 = Conv2D(32, kernel_size=4, activation='relu')(visible2)
-  pool21 = MaxPooling2D(pool_size=(2, 2))(conv21)
-  flat2 = Flatten()(pool21)
-  merge = concatenate([flat1, flat2])
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers.merge import concatenate
+from tensorflow.keras.layers import Conv2D, MaxPool2D, LSTM
+from tensorflow.keras.layers import Reshape
 
-  embed = Embedding(input_dim=35072, output_dim=256, input_length=35072)(merge)
 
-  lstm = LSTM(10, return_sequences=True)(embed)
-  hidden1 = Dense(10, activation='relu')(lstm)
-  output = Dense(1, activation='sigmoid')(hidden1)
-  model = Model(inputs=[visible1, visible2], outputs=output)
 
 """# Cascade model"""
 
-window_size = 5
-mesh_rows = 20
-mesh_columns = 22
-cnn_activation ="tanh"
-lstm_activation="tanh"
-model_activation="sigmoid"
-pool_size = (1,1)
-number_conv2D_filters = 10
-kernel_shape = (7)
-embedding_output_dim = 256
-number_lstm_cells = 10
-number_nodes_hidden = 10
-inputs = []
-convs = []
-
-def cascade_model():
-
-  for i in range(window_size):
-      input = Input(shape=(mesh_rows, mesh_columns,1), name = "input"+str(i+1))
-      inputs.append(input)
-
-  for i in range(window_size):
-      conv = Conv2D(number_conv2D_filters, kernel_shape, activation=cnn_activation, input_shape=(mesh_rows, mesh_columns,1))(inputs[i])# modify shape and kernel
-      pool = MaxPool2D(pool_size=pool_size)(conv) # modify pool size
-      convs.append(Flatten()(pool))
-
-  merge = concatenate(convs)
-  merge = Reshape(target_shape=(1,11200,))(merge)
-  lstm = LSTM(number_lstm_cells, return_sequences=False)(merge)
-  hidden1 = Dense(number_nodes_hidden, activation=lstm_activation)(lstm)
-  output = Dense(1, activation=model_activation)(hidden1)
-
-  model = Model(inputs=inputs, outputs=output)
-  return model
-
-cascade = cascade_model()
-print(cascade.summary())
-
-plot_model(cascade, show_shapes=True, dpi=100)
-
-"""# Training with fake data"""
-
-X = np.random.randint(0,10,(1000,mesh_rows,mesh_columns))
-number_y_examples = int(X.shape[0]/5)
-Y = np.random.randint(0,2,(number_y_examples,1))
+class Cascade:
+    def __init__(self, window_size, cnn_activation, hidden_activation, model_activation, pool_size,
+                 number_conv2D_filters, kernel_shape, number_lstm_cells, number_nodes_hidden, loss,
+                 optimizer):
+        self.window_size = window_size
+        self.cnn_activation = cnn_activation
+        self.hidden_activation = hidden_activation
+        self.model_activation = model_activation
+        self.pool_size = pool_size
+        self.number_conv2D_filters = number_conv2D_filters
+        self.kernel_shape = kernel_shape
+        self.number_lstm_cells = number_lstm_cells
+        self.number_nodes_hidden = number_nodes_hidden
+        self.mesh_rows = 20
+        self.mesh_columns = 22
+        self.loss = loss
+        self.optimizer = optimizer
+        self.model = self.cascade_model()
+        
+    def cascade_model(self):
+      inputs = []
+      convs = []
+      for i in range(self.window_size):
+          input_layer = Input(shape=(self.mesh_rows, self.mesh_columns,1), name = "input"+str(i+1))
+          inputs.append(input_layer)
+    
+      for i in range(self.window_size):
+          conv = Conv2D(self.number_conv2D_filters, self.kernel_shape, activation=self.cnn_activation, input_shape=(self.mesh_rows, self.mesh_columns,1))(inputs[i])# modify shape and kernel
+          pool = MaxPool2D(pool_size=self.pool_size)(conv) # modify pool size
+          convs.append(Flatten()(pool))
+    
+      merge = concatenate(convs)
+      merge = Reshape(target_shape=(1,11200,))(merge)#Will cause a problem later, need fix asap
+      lstm = LSTM(self.number_lstm_cells, return_sequences=False)(merge)
+      hidden1 = Dense(self.number_nodes_hidden, activation=self.hidden_activation)(lstm)
+      output = Dense(1, activation=self.model_activation)(hidden1)
+      model = Model(inputs=inputs, outputs=output)
+      return model
 
 
 
-optimizer = "sgd"
-loss = "binary_crossentropy"
-input1 = X[0:200]
-input1 = np.reshape(input1,(200,20,22,1))
-
-input2 = X[200:400]
-input2 = np.reshape(input2,(200,20,22,1))
-
-input3 = X[400:600]
-input3 = np.reshape(input3,(200,20,22,1))
-
-input4 = X[600:800]
-input4 = np.reshape(input4,(200,20,22,1))
-
-input5 = X[800:]
-input5 = np.reshape(input5,(200,20,22,1))
-
-prop = optimizers.RMSprop(1e-3)
-sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0.9, nesterov=True)
-
-input_dictionary = {'input1' : input1,'input2' : input2,'input3' : input3, 'input4': input4,'input5':input5}
-model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
-print(input4[0].shape)
-y_train = Y[0:200]
-model.fit(input_dictionary,y_train,batch_size=20,epochs=50)
