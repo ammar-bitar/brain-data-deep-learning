@@ -39,7 +39,7 @@ Based on the model available in the following [github repository](https://github
 
 Its model is:
 
-<img src="eeg_net_model.png" height=50%>
+<img src="eeg_net_model.png" height=25%>
 
 ## Capsule Networks
 
