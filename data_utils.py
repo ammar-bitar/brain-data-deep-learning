@@ -138,41 +138,40 @@ def create_h5_files(raw_matrix,subject,type_state):
     
     if(type_state == "task_working_memory"): #we divide the file by 24 parts
         number_columns_per_chunk = closestNumber(raw_matrix.shape[1] - 24,24) // 24
-        for i in range(24):
-          if i>= 0 and i<14:
+        for i in range(5): # we choose only 5 chunks of this data to solve data imbalance
+          if i>= 0 and i<3:
               destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-          if i >= 14 and i<19:
+          if i == 3:
               destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-          if i >= 19:
+          if i == 4:
               destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
           start_index_col = number_columns_per_chunk * i
           stop_index_col = start_index_col + number_columns_per_chunk - 1
           with h5py.File(destination_file, "w") as hf:
               hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4) # lossless compression :) , 4 is the best option
     
-    if(type_state == "task_story_math"): #we divide the file by 20 parts
-        number_columns_per_chunk = closestNumber(raw_matrix.shape[1] - 20,20) // 20
-        for i in range(20):
-          if i>= 0 and i < 12:
+    if(type_state == "task_story_math"): #we divide the file by 18 parts
+        number_columns_per_chunk = closestNumber(raw_matrix.shape[1] - 18,18) // 18
+        for i in range(5): # we choose only 5 chunks of this data to solve data imbalance
+          if i >= 0 and i < 3:
               destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-          if i >= 12 and i < 16:
+          if i == 3:
               destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-          if i >= 16:
+          if i == 4 :
               destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
           start_index_col = number_columns_per_chunk * i
           stop_index_col = start_index_col + number_columns_per_chunk - 1
           with h5py.File(destination_file, "w") as hf:
               hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4) # lossless compression :) , 4 is the best option
-
     
     if(type_state == "task_motor"): #we divide the file by 30 parts
         number_columns_per_chunk = closestNumber(raw_matrix.shape[1] - 30,30) // 30
-        for i in range(30):
-          if i >= 0 and i < 18:
+        for i in range(5):
+          if i >= 0 and i < 3:
               destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-          if i >= 18 and i < 24:
+          if i == 3:
               destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-          if i >= 24:
+          if i == 4:
               destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
           start_index_col = number_columns_per_chunk * i
           stop_index_col = start_index_col + number_columns_per_chunk - 1

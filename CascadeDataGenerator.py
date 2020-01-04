@@ -1,8 +1,8 @@
 from tensorflow.keras.utils import Sequence
 import h5py
 from sklearn.utils import shuffle
-import math
 import numpy as np
+import gc
 
 class Generator(Sequence):
     def __init__(self, files_paths, ram_to_use, data_type): #ram_to_use in GB
@@ -202,7 +202,7 @@ class Generator(Sequence):
         output[row,i:i+k] = array_channels[0,l:l+k]
         return output
 
-    #Given n, find the closest number that divides n by m ( used for the splitting by 5) m will generally be 5 or 10
+    #Given n, find the closest number that divides n by m ( used for an even splitting of the data)
     def closestNumber(self,n, m) : 
         q = int(n / m) 
         n1 = m * q 

@@ -153,6 +153,6 @@ class PrintingCallback(Callback):
 #Todo 04/01 : change colors of curves
         #make 2 separate plots , one for accuracies , other for loss
         #change destination folder to make experiments specific to cascade model
-        #on_predict_batch_end
+        #on_predict_batch_end output the ram used ?
         
 
