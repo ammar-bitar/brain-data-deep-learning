@@ -183,8 +183,55 @@ def create_h5_files(raw_matrix,subject,type_state):
         test_matrix = np.zeros((10,10))
         with h5py.File('test.h5', 'w') as hf:
             hf.create_dataset('test', data=test_matrix,compression="gzip", compression_opts=4)
+            
 
-    
+##For each subject, it prints how many rest files and how many task files it has in the Amazon server            
+def get_info_files_subjects(personal_access_key_id,secret_access_key, subjects):
+    folders = ["3-Restin","4-Restin","5-Restin","6-Wrkmem","7-Wrkmem","8-StoryM","9-StoryM","10-Motort","11-Motort"]
+    s3 = boto3.client('s3', aws_access_key_id=personal_access_key_id, aws_secret_access_key=secret_access_key)
+    for subject in subjects:
+        rest_count = 0
+        task_count = 0
+        for folder in folders:
+            number_files = s3.list_objects_v2(Bucket="hcp-openaccess", Prefix='HCP_1200/'+subject+'/unprocessed/MEG/'+folder)['KeyCount']
+            if "Restin" in folder:
+                rest_count += number_files
+            else:
+                task_count += number_files
+        print("for subject {}, rest_count = {}, and task_count = {}".format(subject, rest_count, task_count))
+        
+#Gets a list of subjects and returns a new list of subjects that might contain less subjects
+#It iterates through all the subjects, and if a subject has 0 task or rest state files, it discards the subject
+#Used to fix data imbalance and to prevent bugs during the training using the data generator
+def get_filtered_subjects(personal_access_key_id,secret_access_key, subjects):
+    print("starting to discard subjects to keep data balance ...")
+    new_subject_list = []
+    number_subjects = len(subjects)
+    folders = ["3-Restin","4-Restin","5-Restin","6-Wrkmem","7-Wrkmem","8-StoryM","9-StoryM","10-Motort","11-Motort"]
+    s3 = boto3.client('s3', aws_access_key_id=personal_access_key_id, aws_secret_access_key=secret_access_key)
+    for subject in subjects:
+        rest_count = 0
+        task_count = 0
+        for folder in folders:
+            number_files = s3.list_objects_v2(Bucket="hcp-openaccess", Prefix='HCP_1200/'+subject+'/unprocessed/MEG/'+folder)['KeyCount']
+            if "Restin" in folder:
+                rest_count += number_files
+            else:
+                task_count += number_files
+        if (rest_count != 0 and task_count !=0):
+            new_subject_list.append(subject)
+        else:
+            if rest_count == 0:
+                print("Discarding subject '{}' because it had 0 rest files".format(subject))
+            else:
+                print("Discarding subject '{}' because it had 0 task files".format(subject))
+
+    new_list_len = len(new_subject_list)
+    print("-"*7 + " Done filtering out subjects ! " + "-"*7)
+    print("Original list had {} subjects and new list has {} subjects".format(number_subjects, new_list_len))
+    return new_subject_list
+
+###Downloads 1 subject and ignores the case where 1 of the folders/files is missing    
 def download_subject(subject,personal_access_key_id,secret_access_key):
   s3 = boto3.client('s3', aws_access_key_id=personal_access_key_id, aws_secret_access_key=secret_access_key)
 
