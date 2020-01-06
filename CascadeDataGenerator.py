@@ -32,7 +32,7 @@ class Generator(Sequence):
 
 
     def load_data(self):
-        print("data type: {}\nindex_batch_files: {}\nnumber_files: {}".format(self.data_type,self.index_batch_files,self.number_files))
+#        print("data type: {}\nindex_batch_files: {}\nnumber_files: {}".format(self.data_type,self.index_batch_files,self.number_files))
         rest_matrix = np .zeros((248,1))
         task_matrix = np .zeros((248,1))
 
@@ -59,7 +59,7 @@ class Generator(Sequence):
         task_matrix = np.delete(task_matrix, 0, 1)#delete first column made of 0s
         if (rest_matrix.shape[1] != 0):
             rest_is_empty = False
-            print("rest matrix shape",rest_matrix.shape)
+#            print("rest matrix shape",rest_matrix.shape)
             rest_matrix = self.normalize_matrix(rest_matrix)
             rest_length = self.closestNumber(int(rest_matrix.shape[1]) - 10,10)
             rest_meshes = np.zeros((rest_length,20,22))
@@ -79,7 +79,7 @@ class Generator(Sequence):
 
         if (task_matrix.shape[1] != 0):
             task_is_empty = False
-            print("task matrix shape",task_matrix.shape)
+#            print("task matrix shape",task_matrix.shape)
             task_matrix = self.normalize_matrix(task_matrix)           
             task_length = self.closestNumber(int(task_matrix.shape[1]) - 10,10)
             task_meshes = np.zeros((task_length,20,22))
