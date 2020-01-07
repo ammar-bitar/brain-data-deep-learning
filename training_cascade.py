@@ -79,13 +79,14 @@ def test_training_synthetic_data():
                                 loss, optimizer)
     cascade_model = model_object.model
     cascade_model.compile(optimizer=model_object.optimizer, loss=model_object.loss, metrics=["accuracy"])
+    cascade_model.summary()
     
     x_training, y_training = prepare_synthetic_data()
     
     batch_size = 64
     epochs = 40
     
-    model_training_callbacks(cascade_model, x_training, y_training, batch_size,epochs, callbacks = [PrintingCallback(epochs, batch_size, model_object)])
+    # model_training_callbacks(cascade_model, x_training, y_training, batch_size,epochs, callbacks = [PrintingCallback(epochs, batch_size, model_object)])
     
 #def test_training
 

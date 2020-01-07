@@ -59,18 +59,18 @@ class PrintingCallback(Callback):
         except Exception as e:
             print("Failed to append in epoch file using CPU terminology, trying GPU terminology ...")
         
-        try:
-            self.append_to_epochs_file(self.experiment_number,epoch, logs['acc'], logs['loss'], logs['val_acc'], logs['val_loss'])
-        except Exception as e:
-            print("Failed to append in epoch file using both GPU and CPUterminology")
-            print("Exception error: ",str(e))
+        # try:
+        #     self.append_to_epochs_file(self.experiment_number,epoch, logs['acc'], logs['loss'], logs['val_acc'], logs['val_loss'])
+        # except Exception as e:
+        #     print("Failed to append in epoch file using both GPU and CPUterminology")
+        #     print("Exception error: ",str(e))
       
     def model_checkpoint(self):
         exp_path = "Experiments/Cascade/Experiment" + str(self.experiment_number)
-        if(self.using_gpu == True):
-            check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_acc:.3f}.hdf5'
-        else:
-            check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_accuracy:.3f}.hdf5'
+        # if(self.using_gpu == True):
+        #     check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-_acc_acc_{val_acc:.3f}.hdf5'
+        # else:
+        check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_accuracy:.3f}.hdf5'
         value_monitored = 'val_acc'
         callback = ModelCheckpoint(filepath = check_point_path, 
                                        monitor=value_monitored, 

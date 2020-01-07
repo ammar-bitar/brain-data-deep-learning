@@ -5,21 +5,27 @@ import numpy as np
 import gc
 
 class Generator(Sequence):
-    def __init__(self, files_paths, ram_to_use, data_type): #ram_to_use in GB
+    def __init__(self, files_paths, ram_to_use, data_type,using_gpu): #ram_to_use in GB
         self.files_paths = files_paths
         # self.batch_size = batch_size
         self.index_batch = 0
         self.index_batch_files = 0
-        self.ram_to_use = ram_to_use
+        self.ram_to_use = ram_to_use #not used anymore because unknown memory management of TF2 with/without GPU/CPU
         self.data_type = data_type # will be train or validate or test
+        self.using_gpu = using_gpu
         self.number_files = self.get_number_files_to_load()
         self.input_dict,self.y = self.load_data()
         
 
     def get_number_files_to_load(self):
-        if self.ram_to_use == 1 and self.data_type == "train":
+        if self.using_gpu  and self.data_type == "train":
+            number_files = 4
+        if self.using_gpu  and self.data_type == "validate":
+            number_files = 2
+            
+        if not self.using_gpu  and self.data_type == "train":
             number_files = 6
-        if self.ram_to_use == 1 and self.data_type == "validate":
+        if not self.using_gpu  and self.data_type == "validate":
             number_files = 3
         #do for other cases if working
         return number_files

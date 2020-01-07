@@ -25,7 +25,7 @@ from tensorflow.keras.layers import Reshape
 class Cascade:
     def __init__(self, window_size, cnn_activation, hidden_activation, model_activation, pool_size,
                  number_conv2D_filters, kernel_shape, number_lstm_cells, number_nodes_hidden, loss,
-                 optimizer):
+                 optimizer, using_gpu):
         self.window_size = window_size
         self.cnn_activation = cnn_activation
         self.hidden_activation = hidden_activation
@@ -39,6 +39,7 @@ class Cascade:
         self.mesh_columns = 22
         self.loss = loss
         self.optimizer = optimizer
+        self.using_gpu = using_gpu
         self.model = self.cascade_model()
         
     def cascade_model(self):
@@ -47,11 +48,16 @@ class Cascade:
       for i in range(self.window_size):
           input_layer = Input(shape=(self.mesh_rows, self.mesh_columns,1), name = "input"+str(i+1))
           inputs.append(input_layer)
-    
-      for i in range(self.window_size):
-          conv = Conv2D(self.number_conv2D_filters, self.kernel_shape, activation=self.cnn_activation, input_shape=(self.mesh_rows, self.mesh_columns,1))(inputs[i])# modify shape and kernel
-          pool = MaxPool2D(pool_size=self.pool_size)(conv) # modify pool size
-          convs.append(Flatten()(pool))
+      
+      if self.using_gpu:
+          for i in range(self.window_size):
+              conv = Conv2D(self.number_conv2D_filters, self.kernel_shape, activation=self.cnn_activation, input_shape=(self.mesh_rows, self.mesh_columns,1))(inputs[i])# modify shape and kernel
+              convs.append(Flatten()(conv))
+      else:
+          for i in range(self.window_size):
+              conv = Conv2D(self.number_conv2D_filters, self.kernel_shape, activation=self.cnn_activation, input_shape=(self.mesh_rows, self.mesh_columns,1))(inputs[i])# modify shape and kernel
+              pool = MaxPool2D(pool_size=self.pool_size)(conv) # modify pool size
+              convs.append(Flatten()(pool))
     
       merge = concatenate(convs)
       merge = Reshape(target_shape=(1,11200,))(merge)#Will cause a problem later, need fix asap
