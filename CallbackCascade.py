@@ -11,6 +11,7 @@ from tensorflow.keras.callbacks import Callback
 import os
 import re
 import matplotlib.pyplot as plt
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 
 class PrintingCallback(Callback):
@@ -20,16 +21,19 @@ class PrintingCallback(Callback):
         self.cascade_model_object = cascade_model_object
         self.create_main_experiment_folder()
         self.create_cascade_folder()
+        self.experiment_number = self.get_experiment_number()
+        self.create_experiment_folder(self.experiment_number)
+        self.checkpoint_callback = self.model_checkpoint() # a bit bad written but no choice for now
         
         
     def on_train_begin(self, logs=None):
-        self.experiment_number = self.get_experiment_number()
+        # self.experiment_number = self.get_experiment_number()
         print()
         print()
         print("-"*7 +" Beginning of Experiment {} of the Cascade model".format(self.experiment_number) + "-"*7)
         print()
         print()
-        self.create_experiment_folder(self.experiment_number)
+        # self.create_experiment_folder(self.experiment_number)
         self.create_summary_file(self.experiment_number)
         self.append_to_summary_file(self.cascade_model_object, self.experiment_number)
         self.create_info_epochs_file(self.experiment_number)
@@ -45,6 +49,17 @@ class PrintingCallback(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
       self.append_to_epochs_file(self.experiment_number,epoch, logs['accuracy'], logs['loss'], logs['val_accuracy'], logs['val_loss'])
+      
+    def model_checkpoint(self):
+        exp_path = "Experiments/Cascade/Experiment" + str(self.experiment_number)
+        check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_accuracy:.3f}.hdf5'
+        value_monitored = 'val_acc'
+        callback = ModelCheckpoint(filepath = check_point_path, 
+                                       monitor=value_monitored, 
+                                       verbose=1, 
+                                       save_best_only=False, 
+                                       mode='max')
+        return callback
 
       
     #Assumes an existing folder called Experiments
@@ -59,7 +74,8 @@ class PrintingCallback(Callback):
             temp_numbers=[]
             for folder in experiments_folders_list:
                 number = re.findall(r'\d+', folder)
-                temp_numbers.append(int(number[0]))
+                if(len(number)>0):
+                    temp_numbers.append(int(number[0]))
             return max(temp_numbers) + 1
         
     def create_main_experiment_folder(self):
@@ -82,9 +98,11 @@ class PrintingCallback(Callback):
     def create_experiment_folder(self,experiment_number):
         try:
             path_new_experiment = "Experiments/Cascade/Experiment" + str(experiment_number)
+            check_point_path = path_new_experiment+"/checkpoints"
             os.mkdir(path_new_experiment)
+            os.mkdir(check_point_path)
         except Exception as e:
-            print ("Creation of the directory %s failed" % path_new_experiment)
+            print ("Creation of the directory {} or {} failed".format(path_new_experiment,check_point_path))
             print("Exception error: ",str(e))      
       
     def on_predict_batch_end(self, batch, logs=None):
@@ -166,11 +184,12 @@ class PrintingCallback(Callback):
         output_filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/plot_model"+str(experiment_number)+".jpg"
         plt.savefig(output_filename)
         plt.show()
+        
+
 
         
 #Todo 04/01 : change colors of curves
         #make 2 separate plots , one for accuracies , other for loss
-        #change destination folder to make experiments specific to cascade model
         #on_predict_batch_end output the ram used ?
         
 
