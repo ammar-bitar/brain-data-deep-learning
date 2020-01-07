@@ -15,7 +15,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 
 
 class PrintingCallback(Callback):
-    def __init__(self, number_epochs, batch_size, cascade_model_object):
+    def __init__(self, number_epochs, batch_size, cascade_model_object, using_gpu):
         self.number_epochs = number_epochs
         self.batch_size = batch_size
         self.cascade_model_object = cascade_model_object
@@ -23,14 +23,20 @@ class PrintingCallback(Callback):
         self.create_cascade_folder()
         self.experiment_number = self.get_experiment_number()
         self.create_experiment_folder(self.experiment_number)
+        self.using_gpu = using_gpu
         self.checkpoint_callback = self.model_checkpoint() # a bit bad written but no choice for now
+        
+    
         
         
     def on_train_begin(self, logs=None):
         # self.experiment_number = self.get_experiment_number()
         print()
         print()
-        print("-"*7 +" Beginning of Experiment {} of the Cascade model".format(self.experiment_number) + "-"*7)
+        if(self.using_gpu):
+            print("-"*7 +" Beginning of Experiment {} of the Cascade model using GPU ".format(self.experiment_number) + "-"*7)
+        else:
+            print("-"*7 +" Beginning of Experiment {} of the Cascade model without using GPU".format(self.experiment_number) + "-"*7)            
         print()
         print()
         # self.create_experiment_folder(self.experiment_number)
@@ -48,11 +54,23 @@ class PrintingCallback(Callback):
         self.plot_epochs_info(self.experiment_number)
 
     def on_epoch_end(self, epoch, logs=None):
-      self.append_to_epochs_file(self.experiment_number,epoch, logs['accuracy'], logs['loss'], logs['val_accuracy'], logs['val_loss'])
+        try:
+            self.append_to_epochs_file(self.experiment_number,epoch, logs['accuracy'], logs['loss'], logs['val_accuracy'], logs['val_loss'])
+        except Exception as e:
+            print("Failed to append in epoch file using CPU terminology, trying GPU terminology ...")
+        
+        try:
+            self.append_to_epochs_file(self.experiment_number,epoch, logs['acc'], logs['loss'], logs['val_acc'], logs['val_loss'])
+        except Exception as e:
+            print("Failed to append in epoch file using both GPU and CPUterminology")
+            print("Exception error: ",str(e))
       
     def model_checkpoint(self):
         exp_path = "Experiments/Cascade/Experiment" + str(self.experiment_number)
-        check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_accuracy:.3f}.hdf5'
+        if(self.using_gpu == True):
+            check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_acc:.3f}.hdf5'
+        else:
+            check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{epoch:03d}-val_acc_{val_accuracy:.3f}.hdf5'
         value_monitored = 'val_acc'
         callback = ModelCheckpoint(filepath = check_point_path, 
                                        monitor=value_monitored, 
