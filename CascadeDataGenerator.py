@@ -18,16 +18,11 @@ class Generator(Sequence):
         
 
     def get_number_files_to_load(self):
-        if self.using_gpu  and self.data_type == "train":
-            number_files = 4
-        if self.using_gpu  and self.data_type == "validate":
-            number_files = 2
-            
-        if not self.using_gpu  and self.data_type == "train":
+        if self.using_gpu:
+            number_files = 2            
+        else:
             number_files = 6
-        if not self.using_gpu  and self.data_type == "validate":
-            number_files = 3
-        #do for other cases if working
+
         return number_files
 
     def get_dataset_name(self,file_name_with_dir):
