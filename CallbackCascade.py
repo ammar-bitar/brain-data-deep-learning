@@ -13,12 +13,14 @@ import re
 import matplotlib.pyplot as plt
 
 
-
 class PrintingCallback(Callback):
     def __init__(self, number_epochs, batch_size, cascade_model_object):
         self.number_epochs = number_epochs
         self.batch_size = batch_size
         self.cascade_model_object = cascade_model_object
+        self.create_main_experiment_folder()
+        self.create_cascade_folder()
+        
         
     def on_train_begin(self, logs=None):
         self.experiment_number = self.get_experiment_number()
@@ -60,10 +62,26 @@ class PrintingCallback(Callback):
                 temp_numbers.append(int(number[0]))
             return max(temp_numbers) + 1
         
+    def create_main_experiment_folder(self):
+        if(not os.path.isdir("Experiments")):
+            try:
+                os.mkdir("Experiments")
+            except Exception as e:
+                print ("Creation of the main experiment directory failed")
+                print("Exception error: ",str(e))
+        
+    def create_cascade_folder(self):
+        path_cascade = "Experiments/Cascade"
+        if(not os.path.isdir(path_cascade)):
+            try:
+                os.mkdir(path_cascade)
+            except Exception as e:
+                print ("Creation of the main cascade experiment directory failed")
+                print("Exception error: ",str(e))     
         
     def create_experiment_folder(self,experiment_number):
         try:
-            path_new_experiment = "Experiments/Experiment" + str(experiment_number)
+            path_new_experiment = "Experiments/Cascade/Experiment" + str(experiment_number)
             os.mkdir(path_new_experiment)
         except Exception as e:
             print ("Creation of the directory %s failed" % path_new_experiment)
@@ -73,12 +91,12 @@ class PrintingCallback(Callback):
         print("TO DO : write prediction in info_prediction.txt")
         
     def create_summary_file(self,experiment_number):
-        filename = "Experiments/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
+        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
         with open(filename, "w") as file:
             file.write("Summary of the model used for experiment"+str(experiment_number)+" : \n\n")
         
     def append_to_summary_file(self, model_object, experiment_number):
-        filename = "Experiments/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
+        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
         with open(filename, "a+") as file:
             file.write("window_size: "+str(model_object.window_size)+"\n")#.format(str(model_object.window_size)))
             file.write("cnn_activation: {}\n".format(str(model_object.cnn_activation)))
@@ -93,22 +111,22 @@ class PrintingCallback(Callback):
             file.write("optimizer: {}\n".format(str(model_object.optimizer)))
             
     def create_info_epochs_file(self,experiment_number):
-        filename = "Experiments/Experiment"+str(experiment_number)+"/info_epochs_model"+str(experiment_number)+".txt"
+        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/info_epochs_model"+str(experiment_number)+".txt"
         with open(filename, "w") as file:
             file.write("")
         
     def append_to_epochs_file(self,experiment_number, epoch_number, training_accuracy, training_loss, validation_accuracy, validation_loss):
-        filename = "Experiments/Experiment"+str(experiment_number)+"/info_epochs_model"+str(experiment_number)+".txt"
+        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/info_epochs_model"+str(experiment_number)+".txt"
         with open(filename, "a+") as file:
             file.write("Epoch {0},training_acuracy:{1:.2f},trainig_loss:{2:.2f},validation_accuracy:{3:.2f},validation_loss:{4:.2f}\n".format(epoch_number,training_accuracy,training_loss,validation_accuracy,validation_loss))
         
     def create_info_epochs_prediction(self, experiment_number):
-        filename = "Experiments/Experiment"+str(experiment_number)+"/info_prediction_model"+str(experiment_number)+".txt"
+        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/info_prediction_model"+str(experiment_number)+".txt"
         with open(filename, "w") as file:
             file.write("Prediction of the model used for experiment"+str(experiment_number)+" : \n\n")
             
     def plot_epochs_info(self,experiment_number):
-        filename = "Experiments/Experiment"+str(experiment_number)+"/info_epochs_model"+str(experiment_number)+".txt"
+        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/info_epochs_model"+str(experiment_number)+".txt"
         train_accuracies = []
         train_losses = []
         valid_accuracies = []
@@ -145,7 +163,7 @@ class PrintingCallback(Callback):
         plt.title("Accuracy and Loss during Training and Validation")
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy and Loss")
-        output_filename = "Experiments/Experiment"+str(experiment_number)+"/plot_model"+str(experiment_number)+".jpg"
+        output_filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/plot_model"+str(experiment_number)+".jpg"
         plt.savefig(output_filename)
         plt.show()
 
