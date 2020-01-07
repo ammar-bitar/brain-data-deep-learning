@@ -26,7 +26,7 @@ class PrintingCallback(Callback):
         self.experiment_number = self.get_experiment_number()
         print()
         print()
-        print("-"*7 +" Beginning of Experiment {} ".format(self.experiment_number) + "-"*7)
+        print("-"*7 +" Beginning of Experiment {} of the Cascade model".format(self.experiment_number) + "-"*7)
         print()
         print()
         self.create_experiment_folder(self.experiment_number)
@@ -52,7 +52,7 @@ class PrintingCallback(Callback):
     #If empty, no experiment was done and return 1 (meaning 1st experiment)
     #IF not empty, check all folders, extract max, and return max + 1
     def get_experiment_number(self):
-        experiments_folders_list = os.listdir(path='Experiments')
+        experiments_folders_list = os.listdir(path='Experiments/Cascade')
         if(len(experiments_folders_list) == 0): #empty folder
             return 1
         else:  
