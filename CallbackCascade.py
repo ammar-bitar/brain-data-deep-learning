@@ -12,6 +12,7 @@ import os
 import re
 import matplotlib.pyplot as plt
 from tensorflow.keras.callbacks import ModelCheckpoint
+import matplotlib as mpl
 
 
 class PrintingCallback(Callback):
@@ -58,6 +59,7 @@ class PrintingCallback(Callback):
             self.append_to_epochs_file(self.experiment_number,epoch, logs['accuracy'], logs['loss'], logs['val_accuracy'], logs['val_loss'])
         except Exception as e:
             print("Failed to append in epoch file using CPU terminology, trying GPU terminology ...")
+            print("Exception error: ",str(e))
         
         # try:
         #     self.append_to_epochs_file(self.experiment_number,epoch, logs['acc'], logs['loss'], logs['val_acc'], logs['val_loss'])
@@ -190,17 +192,25 @@ class PrintingCallback(Callback):
         except Exception as e:
             print("Problem while reading the file {}".format(filename))
             print("Exception message : {}".format(e))
-        plt.figure(figsize=(10,10))
-        plt.plot(x_values,train_accuracies,label="Training accuracy")
-        plt.plot(x_values,train_losses,label="Training loss")
-        plt.plot(x_values,valid_accuracies,label="Validation accuracy")
-        plt.plot(x_values,valid_losses,label="Validation loss")
-        plt.legend(fontsize='small')
-        plt.title("Accuracy and Loss during Training and Validation")
+        # plt.figure(figsize=(10,10))
+        mpl.style.use('seaborn')
+        fig, (ax1, ax2) = plt.subplots(2, 1,figsize=(10,10))
+        # plt.figure()
+        ax1.plot(x_values,train_accuracies,label="Training Accuracy",color="#4C72B0")
+        ax1.plot(x_values,valid_accuracies,label="Validation Accuracy", color='#55A868')
+        ax1.legend(loc="upper left",fontsize='small')
+        
+        ax2.plot(x_values,train_losses,label="Training Loss", color = "#DD8452" )
+        ax2.plot(x_values,valid_losses,label="Validation Loss", color="#C44E52")
+        ax2.legend(loc="upper right",fontsize='small')
+        
+        ax1.set_title("Accuracy during Training and Validation")
+        ax2.set_title("Loss during Training and Validation")
         plt.xlabel("Epochs")
-        plt.ylabel("Accuracy and Loss")
+        ax1.set(ylabel ="Accuracy")
+        ax2.set(ylabel="Loss")
         output_filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/plot_model"+str(experiment_number)+".jpg"
-        plt.savefig(output_filename)
+        fig.savefig(output_filename,dpi=100)
         plt.show()
         
 

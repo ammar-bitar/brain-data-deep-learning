@@ -74,19 +74,25 @@ def model_training_callbacks(model, input_training, output_training,batch_size,e
 
 
 def test_training_synthetic_data():  
+    using_gpu = False
     model_object = cascade.Cascade(window_size,cnn_activation, hidden_activation, model_activation, pool_size,
                                 number_conv2D_filters, kernel_shape, number_lstm_cells, number_nodes_hidden, 
-                                loss, optimizer)
+                                loss, optimizer, using_gpu)
     cascade_model = model_object.model
     cascade_model.compile(optimizer=model_object.optimizer, loss=model_object.loss, metrics=["accuracy"])
-    cascade_model.summary()
+    # cascade_model.summary()
     
     x_training, y_training = prepare_synthetic_data()
     
     batch_size = 64
-    epochs = 40
-    
-    # model_training_callbacks(cascade_model, x_training, y_training, batch_size,epochs, callbacks = [PrintingCallback(epochs, batch_size, model_object)])
+    epochs = 15
+    callback_list =[]
+    main_callback = PrintingCallback(epochs, batch_size, model_object, using_gpu)
+    checkpoint_callback = main_callback.checkpoint_callback
+    callback_list.append(main_callback)
+    callback_list.append(checkpoint_callback)
+
+    model_training_callbacks(cascade_model, x_training, y_training, batch_size,epochs, callbacks = callback_list)
     
 #def test_training
 
