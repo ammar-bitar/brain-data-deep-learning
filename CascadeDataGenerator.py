@@ -120,7 +120,7 @@ class Generator(Sequence):
             del input4_task
             del input5_task
 
-        elif rest_is_empty:
+        elif rest_is_empty and not task_is_empty :
             input1 = input1_task
             input2 = input2_task
             input3 = input3_task
@@ -135,7 +135,7 @@ class Generator(Sequence):
             del input4_task
             del input5_task
 
-        elif task_is_empty:
+        elif task_is_empty and not rest_is_empty :
             input1 = input1_rest
             input2 = input2_rest
             input3 = input3_rest
