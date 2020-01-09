@@ -98,6 +98,41 @@ def get_h5_file(h5_file_name,verbose=False):
   matrix = np.array(matrix)
   return matrix
 
+
+def create_data_directory():
+    print("Creating data directory or skipping if already existing...")
+    if(not os.path.isdir("Data")):
+        try:
+            os.mkdir("Data") 
+            print("Created Data folder !")
+        except Exception as e:
+            print ("Creation of the Data directory failed")
+            print("Exception error: ",str(e))
+            
+    if(not os.path.isdir("Data/train")):
+        try:
+            os.mkdir("Data/train")    
+            print("Created train folder !")
+        except Exception as e:
+            print ("Creation of the train directory failed")
+            print("Exception error: ",str(e))
+            
+    if(not os.path.isdir("Data/validate")):
+        try:
+            os.mkdir("Data/validate")  
+            print("Created validate folder !")
+        except Exception as e:
+            print ("Creation of the validate directory failed")
+            print("Exception error: ",str(e))
+            
+    if(not os.path.isdir("Data/test")):
+        try:
+            os.mkdir("Data/test")    
+            print("Created test folder !")
+        except Exception as e:
+            print ("Creation of the test directory failed")
+            print("Exception error: ",str(e))
+
 ## TEST THE STOP INDEX , Might not be Working !! ## # Still need to be investigated, but it's a minor problem
 #Function to create the h5 files given the raw matrix
 #The splitting is done so that the memory size in RAM once *uncompressed* is about 100 MB
