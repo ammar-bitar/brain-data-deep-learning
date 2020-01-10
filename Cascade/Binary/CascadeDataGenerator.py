@@ -4,6 +4,7 @@ from sklearn.utils import shuffle
 import numpy as np
 import gc
 import data_utils as utils
+import tensorflow as tf
 
 class Generator(Sequence):
     def __init__(self, files_paths, ram_to_use, data_type,using_gpu): #ram_to_use in GB
@@ -15,7 +16,7 @@ class Generator(Sequence):
         self.data_type = data_type # will be train or validate or test
         self.using_gpu = using_gpu
         self.number_files = self.get_number_files_to_load()
-        self.input_dict,self.y = self.load_data()
+        
         
 
     def get_number_files_to_load(self):
@@ -172,6 +173,9 @@ class Generator(Sequence):
         del input5
 
         gc.collect()
+        
+        y = tf.keras.utils.to_categorical(y,2)
+        # y = tf.one_hot(y,2)
 
         return data_dict,y
 
@@ -207,6 +211,15 @@ class Generator(Sequence):
         # batch_input, batch_output = self.load_synthetic_data()
         self.index_batch_files += 1
         return batch_input,batch_output
+    
+    def to_one_hot_binary(self, array):
+        output = np.zeros((array.shape[0],2),dtype=np.int)
+        for i in range(len(array)):
+            if array[i] == 0:
+                output[i] = np.array([1,0])
+            else:
+                output[i] = np.array([0,1])
+        return output
     
 
 

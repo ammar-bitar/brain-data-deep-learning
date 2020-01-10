@@ -63,7 +63,7 @@ class Cascade:
       merge = Reshape(target_shape=(1,11200,))(merge)#Will cause a problem later, need fix asap
       lstm = LSTM(self.number_lstm_cells, return_sequences=False)(merge)
       hidden1 = Dense(self.number_nodes_hidden, activation=self.hidden_activation)(lstm)
-      output = Dense(1, activation=self.model_activation)(hidden1)
+      output = Dense(2, activation=self.model_activation)(hidden1)
       model = Model(inputs=inputs, outputs=output)
       return model
 

@@ -40,7 +40,7 @@ def prepare_synthetic_data():
     mesh_columns = 22
     X = np.random.randint(0,10,(1000,mesh_rows,mesh_columns))
     number_y_examples = int(X.shape[0]/5)
-    Y = np.random.randint(0,2,(number_y_examples,1))
+    Y = np.random.randint(0,2,(number_y_examples))
 
     
     input1 = X[0:200]
@@ -61,8 +61,10 @@ def prepare_synthetic_data():
 
     input_dictionary = {'input1' : input1,'input2' : input2,'input3' : input3, 'input4': input4,'input5':input5}
     
-
-    y_train = Y[0:200]
+    import tensorflow as tf
+    y_train = tf.one_hot(Y[0:200],2)
+    # y_train = Y[0:200]
+    
     return input_dictionary,y_train
 
 
