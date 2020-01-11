@@ -311,6 +311,7 @@ def download_subject(subject,personal_access_key_id,secret_access_key):
 #list_subjects should be a list of strings containing the 6 digits subjects
 #hcp_path should be the current working directory (os.getcwd())
 def download_batch_subjects(list_subjects, personal_access_key_id, secret_access_key, hcp_path): # hcp_path should be os.getcwd()
+  create_data_directory()  
   state_types = ["rest", "task_working_memory", "task_story_math", "task_motor"]
   for subject in list_subjects:
     download_subject(subject,personal_access_key_id,secret_access_key)
@@ -333,6 +334,33 @@ def download_batch_subjects(list_subjects, personal_access_key_id, secret_access
       print()
       print("Error while trying to delete the directory.")
       print("Exception message : " + str(e))
+      
+
+def separate_list(all_files_list):
+    task_list = []
+    rest_list = []
+    for item in all_files_list:
+        if "task" in item:
+            task_list.append(item)
+        else:
+            rest_list.append(item)
+
+    return task_list, rest_list
+
+def orderer_shuffling(rest_list,task_list):
+    ordered_list = []
+    for index, (value1, value2) in enumerate(zip(rest_list, task_list)):
+        ordered_list.append(value1)
+        ordered_list.append(value2)
+    if(len(rest_list) != len(task_list)):
+        len_rest = len(rest_list)
+        len_task = len(task_list)
+        diff_len = abs(len_rest-len_task)
+        if(len(rest_list) > len(task_list)):
+            ordered_list.extend(rest_list[-diff_len:])
+        else:
+            ordered_list.extend(task_list[-diff_len:])
+    return ordered_list
       
     
     

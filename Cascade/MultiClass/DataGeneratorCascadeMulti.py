@@ -9,23 +9,22 @@ import tensorflow as tf
 class Generator(Sequence):
     def __init__(self, files_paths, ram_to_use, data_type,using_gpu): #ram_to_use in GB
         self.files_paths = files_paths
-        # self.batch_size = batch_size
         self.index_batch = 0
         self.index_batch_files = 0
         self.ram_to_use = ram_to_use #not used anymore because unknown memory management of TF2 with/without GPU/CPU
         self.data_type = data_type # will be train or validate or test
         self.using_gpu = using_gpu
-        self.number_files = self.get_number_files_to_load()
+        self.number_files_per_batch = self.get_number_files_to_load()
         
         
 
     def get_number_files_to_load(self):
         if self.using_gpu:
-            number_files = 2            
+            number_files_per_batch = 2            
         else:
-            number_files = 6
+            number_files_per_batch = 6
 
-        return number_files
+        return number_files_per_batch
 
     def get_dataset_name(self,file_name_with_dir):
         filename_without_dir = file_name_with_dir.split('/')[-1]
@@ -41,7 +40,7 @@ class Generator(Sequence):
         motor_matrix = np.zeros((248,1))
         number_classes = 4
 
-        files_to_load = self.files_paths[self.index_batch_files * self.number_files: (self.index_batch_files + 1) * self.number_files]
+        files_to_load = self.files_paths[self.index_batch_files * self.number_files_per_batch: (self.index_batch_files + 1) * self.number_files_per_batch]
 
         for i in range(len(files_to_load)):
             if "rest" in files_to_load[i]:
@@ -99,6 +98,8 @@ class Generator(Sequence):
         dict4 = {0:input4_rest,1:input4_math,2:input4_mem,3:input4_motor}
         dict5 = {0:input5_rest,1:input5_math,2:input5_mem,3:input5_motor}
         
+        
+        
         input1 = np.random.rand(1,20,22)
         input2 = np.random.rand(1,20,22)
         input3 = np.random.rand(1,20,22)
@@ -119,17 +120,15 @@ class Generator(Sequence):
                 input4=np.concatenate((input4,dict4[i]))
                 
             if dict5[i].shape[0]>0:
-                input4=np.concatenate((input4,dict5[i]))
-                
-                
-        input1 = np.delete(input1,0,0)
-        input2 = np.delete(input1,0,0)
-        input3 = np.delete(input1,0,0)
-        input4 = np.delete(input1,0,0)
-        input5 = np.delete(input1,0,0)
+                input5=np.concatenate((input5,dict5[i]))
         
-
-
+        #deleting first element of each lists                        
+        input1 = np.delete(input1,0,0)
+        input2 = np.delete(input2,0,0)
+        input3 = np.delete(input3,0,0)
+        input4 = np.delete(input4,0,0)
+        input5 = np.delete(input5,0,0)
+        
         input1 = np.reshape(input1,(input1.shape[0],20,22,1))
         input2 = np.reshape(input2,(input2.shape[0],20,22,1))
         input3 = np.reshape(input3,(input3.shape[0],20,22,1))
@@ -165,22 +164,24 @@ class Generator(Sequence):
     
     def preprocess_data_type(self,matrix):
         matrix = self.normalize_matrix(matrix)
-        length = utils.closestNumber(int(matrix.shape[1]) - 10,10)
+        if(matrix.shape[1] == 1):
+            length = 1
+        else:
+            length = utils.closestNumber(int(matrix.shape[1]) - 5,5)
+            
         meshes = np.zeros((length,20,22))
         for i in range(length):
             array_time_step = np.reshape(matrix[:,i],(1,248))
             meshes[i] = utils.array_to_mesh(array_time_step)
-
+    
         del matrix
-        gc.collect()
+    
         input1,input2,input3,input4,input5 = self.get_input_lists(meshes, self.get_lists_indexes(length))
         del meshes
-        gc.collect()
+    
         number_y_labels = int(length/5)
         y_rest = np.ones((number_y_labels,1),dtype=np.int8)
         return (input1,input2,input3,input4,input5), y_rest
-        
-
 
     def normalize_matrix(self,matrix):
         max,min = matrix.max(),matrix.min()
@@ -204,13 +205,12 @@ class Generator(Sequence):
         self.index_batch_files = 0
 
     def __len__(self): # how many batches
-        return len(self.files_paths)//self.number_files
-        # return math.ceil(len(self.files_paths) / self.number_files)
+        return len(self.files_paths)//self.number_files_per_batch
+
 
     def __getitem__(self, index): # returns a batch
         gc.collect()
         batch_input, batch_output = self.load_data()
-        # batch_input, batch_output = self.load_synthetic_data()
         self.index_batch_files += 1
         return batch_input,batch_output
     
@@ -223,16 +223,5 @@ class Generator(Sequence):
                 output[i] = np.array([0,1])
         return output
     
-
-
-
-#load X files from train and 0.5X files from validate
-#from training data, prepare all 5 input lists and output list
-#do the same for validate data
-#approximately 1 GB in RAM = 6 train + 3 validate
-#approximately 2 GB in RAM = 13 train + 6 validate
-#3 GB in RAM = 20 train + 10 validate
-#5GB in RAM = 33 train + 16 validate
-#batch size = no longer known ( and needed )
 
 
