@@ -39,6 +39,7 @@ class Generator(Sequence):
         math_matrix = np.zeros((248,1))
         memory_matrix = np.zeros((248,1))
         motor_matrix = np.zeros((248,1))
+        number_classes = 4
 
         files_to_load = self.files_paths[self.index_batch_files * self.number_files: (self.index_batch_files + 1) * self.number_files]
 
@@ -75,103 +76,58 @@ class Generator(Sequence):
                 assert matrix.shape[0] == 248 , "This motor data does not have 248 channels, but {} instead".format(matrix.shape[0])
                 motor_matrix = np.column_stack((motor_matrix, matrix))
 
-        rest_matrix = np.delete(rest_matrix, 0, 1)#delete first column made of 0s
-        math_matrix = np.delete(rest_matrix, 0, 1)#delete first column made of 0s
-        memory_matrix = np.delete(rest_matrix, 0, 1)#delete first column made of 0s
-        motor_matrix = np.delete(rest_matrix, 0, 1)#delete first column made of 0s
+
+        x_rest,y_rest = self.preprocess_data_type(rest_matrix)
+        y_rest = y_rest*0
+        input1_rest,input2_rest,input3_rest,input4_rest,input5_rest = x_rest[0],x_rest[1],x_rest[2],x_rest[3],x_rest[4]
         
-        if (rest_matrix.shape[1] != 0):
-            rest_is_empty = False
-            rest_matrix = self.normalize_matrix(rest_matrix)
-            rest_length = utils.closestNumber(int(rest_matrix.shape[1]) - 10,10)
-            rest_meshes = np.zeros((rest_length,20,22))
-            for i in range(rest_length):
-                array_time_step = np.reshape(rest_matrix[:,i],(1,248))
-                rest_meshes[i] = utils.array_to_mesh(array_time_step)
+          
+        x_math,y_math = self.preprocess_data_type(math_matrix)            
+        input1_math,input2_math,input3_math,input4_math,input5_math = x_math[0],x_math[1],x_math[2],x_math[3],x_math[4]            
 
-            del rest_matrix
-            gc.collect()
-            input1_rest,input2_rest,input3_rest,input4_rest,input5_rest = self.get_input_lists(rest_meshes, self.get_lists_indexes(rest_length))
-            del rest_meshes
-            gc.collect()
-            number_y_labels_rest = int(rest_length/5)
-            y_rest = np.zeros((number_y_labels_rest,1),dtype=np.int8)
-        else:
-            rest_is_empty = True
-            
-            
-        if (math_matrix.shape[1] != 0):
-            math_is_empty = False            
-            x_math,y_math = self.preprocess_data_type(math_matrix)            
-            input1_math,input2_math,input3_math,input4_math,input5_math = x_math[0],x_math[1],x_math[2],x_math[3],x_math[4]            
-        else:
-            math_is_empty = True
-            
-        if (memory_matrix.shape[1] != 0):
-            memory_is_empty = False
-            x_mem,y_mem = self.preprocess_data_type(memory_matrix)
-            input1_mem,input2_mem,input3_mem,input4_mem,input5_mem = x_mem[0],x_mem[1],x_mem[2],x_mem[3],x_mem[4] 
-        else:
-            memory_is_empty = True
-            
-        if (motor_matrix.shape[1] != 0):
-            motor_is_empty = False
-            x_motor,y_motor = self.preprocess_data_type(motor_matrix)
-            input1_motor,input2_motor,input3_motor,input4_motor,input5_motor = x_motor[0],x_motor[1],x_motor[2],x_motor[3],x_motor[4] 
-        else:
-            motor_is_empty = True
+        x_mem,y_mem = self.preprocess_data_type(memory_matrix)
+        y_mem = y_mem * 2
+        input1_mem,input2_mem,input3_mem,input4_mem,input5_mem = x_mem[0],x_mem[1],x_mem[2],x_mem[3],x_mem[4] 
 
+        x_motor,y_motor = self.preprocess_data_type(motor_matrix)
+        y_motor = y_motor * 3
+        input1_motor,input2_motor,input3_motor,input4_motor,input5_motor = x_motor[0],x_motor[1],x_motor[2],x_motor[3],x_motor[4] 
 
-        if(not rest_is_empty and not task_is_empty):
-            input1 = np.concatenate((input1_rest,input1_task))
-            input2 = np.concatenate((input2_rest,input2_task))
-            input3 = np.concatenate((input3_rest,input3_task))
-            input4 = np.concatenate((input4_rest,input4_task))
-            input5 = np.concatenate((input5_rest,input5_task))
-
-            y = np.concatenate((y_rest,y_task))
-
-            del input1_rest
-            del input2_rest
-            del input3_rest
-            del input4_rest
-            del input5_rest
-
-            del input1_task
-            del input2_task
-            del input3_task
-            del input4_task
-            del input5_task
-
-        elif rest_is_empty and not task_is_empty :
-            input1 = input1_task
-            input2 = input2_task
-            input3 = input3_task
-            input4 = input4_task
-            input5 = input5_task
-            
-            y = y_task
-
-            del input1_task
-            del input2_task
-            del input3_task
-            del input4_task
-            del input5_task
-
-        elif task_is_empty and not rest_is_empty :
-            input1 = input1_rest
-            input2 = input2_rest
-            input3 = input3_rest
-            input4 = input4_rest
-            input5 = input5_rest
-            
-            y = y_rest
-
-            del input1_rest
-            del input2_rest
-            del input3_rest
-            del input4_rest
-            del input5_rest
+        dict1 = {0:input1_rest,1:input1_math,2:input1_mem,3:input1_motor}
+        dict2 = {0:input2_rest,1:input2_math,2:input2_mem,3:input2_motor}
+        dict3 = {0:input3_rest,1:input3_math,2:input3_mem,3:input3_motor}
+        dict4 = {0:input4_rest,1:input4_math,2:input4_mem,3:input4_motor}
+        dict5 = {0:input5_rest,1:input5_math,2:input5_mem,3:input5_motor}
+        
+        input1 = np.random.rand(1,20,22)
+        input2 = np.random.rand(1,20,22)
+        input3 = np.random.rand(1,20,22)
+        input4 = np.random.rand(1,20,22)
+        input5 = np.random.rand(1,20,22)
+        
+        for i in range(number_classes):
+            if dict1[i].shape[0]>0:
+                input1=np.concatenate((input1,dict1[i]))
+                
+            if dict2[i].shape[0]>0:
+                input2=np.concatenate((input2,dict2[i]))
+                
+            if dict3[i].shape[0]>0:
+                input3=np.concatenate((input3,dict3[i]))
+                
+            if dict4[i].shape[0]>0:
+                input4=np.concatenate((input4,dict4[i]))
+                
+            if dict5[i].shape[0]>0:
+                input4=np.concatenate((input4,dict5[i]))
+                
+                
+        input1 = np.delete(input1,0,0)
+        input2 = np.delete(input1,0,0)
+        input3 = np.delete(input1,0,0)
+        input4 = np.delete(input1,0,0)
+        input5 = np.delete(input1,0,0)
+        
 
 
         input1 = np.reshape(input1,(input1.shape[0],20,22,1))
@@ -181,6 +137,15 @@ class Generator(Sequence):
         input5 = np.reshape(input5,(input5.shape[0],20,22,1))
 
         gc.collect()
+        
+        dict_y = {0:y_rest,1:y_math,2:y_mem,3:y_motor}
+        
+        y = np.random.rand(1,1)
+        for i in range(number_classes):
+            if dict_y[i].shape[0]>0:
+                y = np.concatenate((y,dict_y[i]))
+
+        y = np.delete(y,0,0)
 
         #Shuffling the data
         input1,input2,input3,input4,input5,y = shuffle(input1,input2,input3,input4,input5, y, random_state=42)
@@ -195,9 +160,7 @@ class Generator(Sequence):
 
         gc.collect()
         
-        y = tf.keras.utils.to_categorical(y,2)
-        # y = tf.one_hot(y,2)
-
+        y = tf.keras.utils.to_categorical(y,number_classes)
         return data_dict,y
     
     def preprocess_data_type(self,matrix):
