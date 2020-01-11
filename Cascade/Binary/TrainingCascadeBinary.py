@@ -6,9 +6,9 @@ Created on Sat Jan  4 16:49:23 2020
 """
 from tensorflow.keras.utils import plot_model
 import numpy as np
-import CascadeModel as cascade
+import ModelCascadeBinary as cascade
 from tensorflow.keras import optimizers
-from CallbackCascade import PrintingCallback
+from CallbackCascadeBinary import PrintingCallback
 
 window_size = 5
 cnn_activation ="tanh"
@@ -61,6 +61,8 @@ def prepare_synthetic_data():
 
     input_dictionary = {'input1' : input1,'input2' : input2,'input3' : input3, 'input4': input4,'input5':input5}
     
+    print(input_dictionary['input1'])
+    
     import tensorflow as tf
     y_train = tf.one_hot(Y[0:200],2)
     # y_train = Y[0:200]
@@ -87,7 +89,7 @@ def test_training_synthetic_data():
     x_training, y_training = prepare_synthetic_data()
     
     batch_size = 64
-    epochs = 15
+    epochs = 5
     callback_list =[]
     main_callback = PrintingCallback(epochs, batch_size, model_object, using_gpu)
     checkpoint_callback = main_callback.checkpoint_callback

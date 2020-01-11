@@ -7,14 +7,11 @@ Original file is located at
     https://colab.research.google.com/drive/1Dg2GGPN3OK9MauI2cNxvJnTPPf3M6eWd
 """
 
-#@title Run Imports (double click to open) { form-width: "15%", display-mode: "form" }
-from keras.models import Model
-from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout, Input, LSTM, Convolution2D, Embedding, Reshape, Concatenate
-from keras.layers.merge import concatenate
-from keras.utils import plot_model
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout, Input, LSTM, Convolution2D, Embedding, Reshape, Concatenate
+from tensorflow.keras.layers import concatenate
+from tensorflow.keras.utils import plot_model
 import numpy as np
-
-""""# CNN model""""
 
 window_size = 5
 num_channels = 128
