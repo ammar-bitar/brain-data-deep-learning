@@ -71,6 +71,41 @@ class CascadeMulti:
       model = Model(inputs=inputs, outputs=output)
       return model
   
+def test_cascade_working():
+    try:
+        window_size = 5
+        cnn_activation ="elu"
+        hidden_activation="elu"
+        model_activation="softmax"
+        pool_size = (1,1)
+        number_conv2D_filters = 10
+        kernel_shape = (7)
+        number_lstm_cells = 10
+        number_nodes_hidden = 10
+        
+        optimizer = "sgd"
+        # adam = optimizers.Adam()
+        # # sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0.9, nesterov=True)
+        # sgd = optimizers.SGD(lr=0, decay=1e-6, momentum=0.9, nesterov=True)
+        # prop = optimizers.RMSprop(1e-3)
+        
+        loss = "categorical_crossentropy"
+
+        using_gpu = True
+        
+        model_object = CascadeMulti(window_size,cnn_activation, hidden_activation, model_activation, pool_size,
+                            number_conv2D_filters, kernel_shape, number_lstm_cells, number_nodes_hidden, 
+                            loss, optimizer,using_gpu)
+        cascade_model = model_object.model
+        cascade_model.summary()
+        
+        print("working !")
+    except Exception as e:
+        print("not working")
+        print("error : ",str(e))
+        
+test_cascade_working()
+        
 
 
 
