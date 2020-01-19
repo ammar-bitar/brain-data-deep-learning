@@ -1,4 +1,11 @@
-from ModelCascadeMulti import CascadeMulti
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jan 19 02:47:41 2020
+
+@author: Smail
+"""
+
+from CascadeResModel import CascadeResMulti
 from os import listdir
 from os.path import isfile, join
 import numpy as np
@@ -279,7 +286,7 @@ optimizer = "sgd"
 using_gpu = False
 
 
-model_object = CascadeMulti(window_size,cnn_activation, hidden_activation, model_activation, pool_size,
+model_object = CascadeResMulti(window_size,cnn_activation, hidden_activation, model_activation, pool_size,
                             number_conv2D_filters, kernel_shape, number_lstm_cells, number_nodes_hidden, 
                             loss, optimizer,using_gpu)
 
