@@ -144,7 +144,7 @@ def create_data_directory():
             print("Exception error: ",str(e))
 
 
-def create_h5_files(raw_matrix,subject,type_state,exp_type):
+def create_h5_files(raw_matrix,subject,type_state):
     print()
     print("shape of raw matrix",raw_matrix.shape)
     print()
@@ -154,94 +154,85 @@ def create_h5_files(raw_matrix,subject,type_state,exp_type):
     
     number_columns = 250 * 1425
 
-
-    if(type_state == "rest"): #we divide the file by 12 parts
-        if (subject != "162935"):
-          number_columns_per_chunk = number_columns // 10
+    number_columns_per_chunk = number_columns // 10
+    if(type_state == "rest"):
+        if (subject != "212318") or (subject != "162935"):          
           for i in range(10):
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             if i >= 8 and i < 10:
                 destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4) # i+4 corresponds to an offset of 30s approximately
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
+                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
         else:
-          number_columns_per_chunk = number_columns // 10
           for i in range(10):
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1 
             destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             with h5py.File(destination_file, "w") as hf:
-                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
+                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
           
           
     
-    if(type_state == "task_working_memory"): #we divide the file by 24 parts
-        if (subject != "162935"):
-          number_columns_per_chunk = number_columns // 10
-          for i in range(10): # we choose only 5 chunks of this data to solve data imbalance
+    if(type_state == "task_working_memory"): 
+        if (subject != "212318") or (subject != "162935"):
+          for i in range(10):
             if i>= 0 and i<8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             if i >= 8 and i < 10:
                 destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4) # lossless compression :) , 4 is the best option
+                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ]) 
         else:
-          number_columns_per_chunk = number_columns // 10
           for i in range(10):
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             with h5py.File(destination_file, "w") as hf:
-                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
+                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
            
         
     if(type_state == "task_story_math"): #we divide the file by 18 parts
-        if (subject != "162935"):
-          number_columns_per_chunk = number_columns // 10
+        if (subject != "212318") or (subject != "162935"):
           for i in range(10): # we choose only 5 chunks of this data to solve data imbalance
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             if i >=8 and i < 10:
                 destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
+                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
         else:
-          number_columns_per_chunk = number_columns // 10
           for i in range(10):
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             with h5py.File(destination_file, "w") as hf:
-                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
+                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
     
     if(type_state == "task_motor"): #we divide the file by 30 parts
-        if (subject != "162935"):
-          number_columns_per_chunk = number_columns // 10
+        if (subject != "212318") or (subject != "162935"):
           for i in range(10):
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             if i >=8 and i < 10:
                 destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
+                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
         else:
-          number_columns_per_chunk = number_columns // 10
           for i in range(10):
-            start_index_col = number_columns_per_chunk * i
+            start_index_col = number_columns_per_chunk * (i+4)
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ],compression="gzip", compression_opts=4)
-    
+                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ]) 
             
 
 ##For each subject, it prints how many rest files and how many task files it has in the Amazon server            
@@ -342,9 +333,9 @@ def download_batch_subjects(list_subjects, personal_access_key_id, secret_access
       matrix_raw = get_raw_data(subject, state, hcp_path)
       if type(matrix_raw) != type(False): # if the reading was done successfully
         print()
-        print("Creating the compressed h5 files ...")
+        print("Creating the uncompressed h5 files ...")
         create_h5_files(matrix_raw,subject,state, custom_training_number)
-    print("done creating the compressed h5 files for subject '{}' !".format(subject))
+    print("done creating the uncompressed h5 files for subject '{}' !".format(subject))
     print()
     print("deleting the directory containing the binary files of subject '{}' ...".format(subject))
     print()
