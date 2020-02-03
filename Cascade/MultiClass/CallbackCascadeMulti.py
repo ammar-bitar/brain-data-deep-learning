@@ -213,11 +213,16 @@ class PrintingCallback(Callback):
         fig.savefig(output_filename,dpi=100)
         plt.show()
         
+#    def save_training_time(self,experiment_number,time):
+#        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
+#        with open(filename, "a+") as file:
+#            file.write("\n\nTraining time: {:.2f} seconds".format(time))
+
+#    def write_comment(self,experiment_number,comment):
+#        filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
+#        with open(filename, "a+") as file:
+#            file.write("Attention model, comment :  ".format(comment))
 
 
-        
-#Todo 04/01 : change colors of curves
-        #make 2 separate plots , one for accuracies , other for loss
-        #on_predict_batch_end output the ram used ?
         
 

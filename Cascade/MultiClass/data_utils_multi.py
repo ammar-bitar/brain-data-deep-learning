@@ -156,7 +156,7 @@ def create_h5_files(raw_matrix,subject,type_state):
 
     number_columns_per_chunk = number_columns // 10
     if(type_state == "rest"):
-        if (subject != "212318") or (subject != "162935"):          
+        if (subject != "212318") and (subject != "162935"):          
           for i in range(10):
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
@@ -177,7 +177,7 @@ def create_h5_files(raw_matrix,subject,type_state):
           
     
     if(type_state == "task_working_memory"): 
-        if (subject != "212318") or (subject != "162935"):
+        if (subject != "212318") and (subject != "162935"):
           for i in range(10):
             if i>= 0 and i<8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
@@ -197,7 +197,7 @@ def create_h5_files(raw_matrix,subject,type_state):
            
         
     if(type_state == "task_story_math"): #we divide the file by 18 parts
-        if (subject != "212318") or (subject != "162935"):
+        if (subject != "212318") and (subject != "162935"):
           for i in range(10): # we choose only 5 chunks of this data to solve data imbalance
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
@@ -216,7 +216,7 @@ def create_h5_files(raw_matrix,subject,type_state):
                     hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
     
     if(type_state == "task_motor"): #we divide the file by 30 parts
-        if (subject != "212318") or (subject != "162935"):
+        if (subject != "212318") and (subject != "162935"):
           for i in range(10):
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
@@ -324,7 +324,7 @@ def download_subject(subject,personal_access_key_id,secret_access_key):
 #Main function to be executed to download subjects
 #list_subjects should be a list of strings containing the 6 digits subjects
 #hcp_path should be the current working directory (os.getcwd())
-def download_batch_subjects(list_subjects, personal_access_key_id, secret_access_key, hcp_path, custom_training_number): # hcp_path should be os.getcwd()
+def download_batch_subjects(list_subjects, personal_access_key_id, secret_access_key, hcp_path): # hcp_path should be os.getcwd()
   create_data_directory()  
   state_types = ["rest", "task_working_memory", "task_story_math", "task_motor"]
   for subject in list_subjects:
@@ -334,7 +334,7 @@ def download_batch_subjects(list_subjects, personal_access_key_id, secret_access
       if type(matrix_raw) != type(False): # if the reading was done successfully
         print()
         print("Creating the uncompressed h5 files ...")
-        create_h5_files(matrix_raw,subject,state, custom_training_number)
+        create_h5_files(matrix_raw,subject,state)
     print("done creating the uncompressed h5 files for subject '{}' !".format(subject))
     print()
     print("deleting the directory containing the binary files of subject '{}' ...".format(subject))
