@@ -384,7 +384,7 @@ def orderer_shuffling(rest_list,task_list):
     
 def array_to_mesh(arr):    
     assert arr.shape == (1,248),"the shape of the input array should be (1,248) because there are 248 MEG channels,received array of shape " + str(arr.shape)
-    output = np.zeros((20,22),dtype = np.float)
+    output = np.zeros((20,21),dtype = np.float)
     
     #121
     output[0][10] = arr[0][120]

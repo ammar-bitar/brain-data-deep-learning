@@ -38,7 +38,7 @@ class CascadeMulti:
         self.number_lstm_cells = number_lstm_cells
         self.number_nodes_hidden = number_nodes_hidden
         self.mesh_rows = 20
-        self.mesh_columns = 22
+        self.mesh_columns = 21
         self.loss = loss
         self.optimizer = optimizer
         self.using_gpu = using_gpu
