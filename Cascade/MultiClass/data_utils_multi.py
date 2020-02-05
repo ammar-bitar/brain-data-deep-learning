@@ -9,6 +9,7 @@ import mne
 import reading_raw
 import gc
 from sklearn.utils import shuffle
+from tensorflow.keras.utils import to_categorical
 
 #Given the number "n", it finds the closest that is divisible by "m"
 #Used when splitting the matrices
@@ -151,9 +152,19 @@ def create_h5_files(raw_matrix,subject,type_state):
     number_columns = 250 * 1425
 
     number_columns_per_chunk = number_columns // 10
-    if(type_state == "rest"):
-        if (subject != "212318") and (subject != "162935"):          
-          for i in range(10):
+
+    if subject == "212318" or subject == "162935" or subject == "204521" or subject == "707749" or subject == "725751" or subject == "735148":  
+        #data goes to test folder
+        for i in range(10):
+            start_index_col = number_columns_per_chunk * (i+4) # i+4 corresponds to an offset of 30s approximately
+            stop_index_col = start_index_col + number_columns_per_chunk - 1 
+            destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
+            with h5py.File(destination_file, "w") as hf:
+                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])       
+        
+    else:
+        #data goes to train and validate folder
+        for i in range(10):
             if i >= 0 and i < 8:
                 destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
             if i >= 8 and i < 10:
@@ -161,75 +172,7 @@ def create_h5_files(raw_matrix,subject,type_state):
             start_index_col = number_columns_per_chunk * (i+4) # i+4 corresponds to an offset of 30s approximately
             stop_index_col = start_index_col + number_columns_per_chunk - 1
             with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
-        else:
-          for i in range(10):
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1 
-            destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            with h5py.File(destination_file, "w") as hf:
-                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
-          
-          
-    
-    if(type_state == "task_working_memory"): 
-        if (subject != "212318") and (subject != "162935"):
-          for i in range(10):
-            if i>= 0 and i<8:
-                destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            if i >= 8 and i < 10:
-                destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1
-            with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ]) 
-        else:
-          for i in range(10):
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1
-            destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            with h5py.File(destination_file, "w") as hf:
-                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
-           
-        
-    if(type_state == "task_story_math"): #we divide the file by 18 parts
-        if (subject != "212318") and (subject != "162935"):
-          for i in range(10): # we choose only 5 chunks of this data to solve data imbalance
-            if i >= 0 and i < 8:
-                destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            if i >=8 and i < 10:
-                destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1
-            with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
-        else:
-          for i in range(10):
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1
-            destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            with h5py.File(destination_file, "w") as hf:
-                    hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
-    
-    if(type_state == "task_motor"): #we divide the file by 30 parts
-        if (subject != "212318") and (subject != "162935"):
-          for i in range(10):
-            if i >= 0 and i < 8:
-                destination_file = train_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            if i >=8 and i < 10:
-                destination_file = validate_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1
-            with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])
-        else:
-          for i in range(10):
-            start_index_col = number_columns_per_chunk * (i+4)
-            stop_index_col = start_index_col + number_columns_per_chunk - 1
-            destination_file = test_folder + type_state+'_'+subject+'_'+str(i+1)+'.h5'
-            with h5py.File(destination_file, "w") as hf:
-                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ]) 
-            
+                hf.create_dataset(type_state+'_'+subject, data=raw_matrix[ : , start_index_col : stop_index_col ])      
 
 ##For each subject, it prints how many rest files and how many task files it has in the Amazon server            
 def get_info_files_subjects(personal_access_key_id,secret_access_key, subjects):
@@ -371,7 +314,21 @@ def orderer_shuffling(rest_list,mem_list,math_list,motor_list):
         ordered_list.append(value4)
     return ordered_list
       
+
+def get_lists_indexes(matrix_length,window_size):
+    indexes=[]
+    for i in range(window_size):
+        indexes.append(np.arange(start=i, stop = matrix_length-(window_size-1-i),step = 5,dtype=np.int64))
+    return indexes
     
+def get_input_lists(matrix,indexes,window_size):
+    inputs = []
+    for i in range(window_size):
+        inputs.append(np.take(matrix,indexes[i],axis=0))
+    del matrix
+    return inputs
+
+#takes a matrix of 248 by n, 
 def preprocess_data_type(matrix, window_size):
     matrix = normalize_matrix(matrix)
 
@@ -379,11 +336,12 @@ def preprocess_data_type(matrix, window_size):
         length = 1
     else:
         length = closestNumber(int(matrix.shape[1]) - window_size,window_size)
-    print("length ",length)
-    meshes = np.zeros((length,20,21),dtype=np.float64) # FLOAT
+        
+    meshes = np.zeros((length,20,21),dtype=np.float64)
     for i in range(length):
         array_time_step = np.reshape(matrix[:,i],(1,248))
         meshes[i] = array_to_mesh(array_time_step)
+
 
     del matrix
     indexes = get_lists_indexes(length, window_size)
@@ -393,6 +351,7 @@ def preprocess_data_type(matrix, window_size):
     number_y_labels = int((length/(window_size)*2)-1)
     y_rest = np.ones((number_y_labels,1),dtype=np.int8)
     return inputs, y_rest
+
 
 def normalize_matrix(matrix):
     max,min = matrix.max(),matrix.min()
