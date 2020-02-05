@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 11 15:55:47 2020
-
-@author: Smail
-"""
 import sys
 import h5py
 import boto3
@@ -13,6 +7,8 @@ import numpy as np
 import os
 import mne
 import reading_raw
+import gc
+from sklearn.utils import shuffle
 
 #Given the number "n", it finds the closest that is divisible by "m"
 #Used when splitting the matrices
@@ -351,33 +347,192 @@ def download_batch_subjects(list_subjects, personal_access_key_id, secret_access
       
 
 def separate_list(all_files_list):
-    task_list = []
     rest_list = []
+    mem_list = []
+    math_list = []
+    motor_list = []
     for item in all_files_list:
-        if "task" in item:
-            task_list.append(item)
-        else:
+        if "rest" in item:
             rest_list.append(item)
+        if "memory" in item:
+            mem_list.append(item)
+        if "math" in item:
+            math_list.append(item)
+        if "motor" in item:
+            motor_list.append(item)            
+    return rest_list, mem_list, math_list, motor_list
 
-    return task_list, rest_list
-
-def orderer_shuffling(rest_list,task_list):
+def orderer_shuffling(rest_list,mem_list,math_list,motor_list):
     ordered_list = []
-    for index, (value1, value2) in enumerate(zip(rest_list, task_list)):
+    for index, (value1, value2, value3, value4) in enumerate(zip(rest_list, mem_list, math_list, motor_list)):
         ordered_list.append(value1)
         ordered_list.append(value2)
-    if(len(rest_list) != len(task_list)):
-        len_rest = len(rest_list)
-        len_task = len(task_list)
-        diff_len = abs(len_rest-len_task)
-        if(len(rest_list) > len(task_list)):
-            ordered_list.extend(rest_list[-diff_len:])
-        else:
-            ordered_list.extend(task_list[-diff_len:])
+        ordered_list.append(value3)
+        ordered_list.append(value4)
     return ordered_list
       
     
+def preprocess_data_type(matrix, window_size):
+    matrix = normalize_matrix(matrix)
+
+    if(matrix.shape[1] == 1):
+        length = 1
+    else:
+        length = closestNumber(int(matrix.shape[1]) - window_size,window_size)
+    print("length ",length)
+    meshes = np.zeros((length,20,21),dtype=np.float64) # FLOAT
+    for i in range(length):
+        array_time_step = np.reshape(matrix[:,i],(1,248))
+        meshes[i] = array_to_mesh(array_time_step)
+
+    del matrix
+    indexes = get_lists_indexes(length, window_size)
+    inputs = get_input_lists(meshes, indexes, window_size)
+    del meshes
+
+    number_y_labels = int((length/(window_size)*2)-1)
+    y_rest = np.ones((number_y_labels,1),dtype=np.int8)
+    return inputs, y_rest
+
+def normalize_matrix(matrix):
+    max,min = matrix.max(),matrix.min()
+    return (matrix-min)/(max-min)
+
+def get_dataset_name(file_name_with_dir):
+    filename_without_dir = file_name_with_dir.split('/')[-1]
+    temp = filename_without_dir.split('_')[:-1]
+    dataset_name = "_".join(temp)
+    return dataset_name
+
     
+def load_overlapped_data(file_dirs):
+    
+    rest_matrix = np.random.rand(248,1)
+    math_matrix = np.random.rand(248,1)
+    memory_matrix = np.random.rand(248,1)
+    motor_matrix = np.random.rand(248,1)
+    
+    number_classes = 4
+    window_size = 10
+
+    files_to_load = file_dirs
+    print("number of files to load: {}".format(len(files_to_load)))
+
+    
+    for i in range(len(files_to_load)):
+        if "rest" in files_to_load[i]:
+            with h5py.File(files_to_load[i],'r') as f:
+                dataset_name = get_dataset_name(files_to_load[i])
+                matrix = f.get(dataset_name)
+                matrix = np.array(matrix)
+                length = matrix.shape[1]
+            assert matrix.shape[0] == 248 , "This rest data does not have 248 channels, but {} instead".format(matrix.shape[0])
+            rest_matrix = np.column_stack((rest_matrix, matrix))
+
+        if "math" in files_to_load[i]:
+            with h5py.File(files_to_load[i],'r') as f:
+                dataset_name = get_dataset_name(files_to_load[i])
+                matrix = f.get(dataset_name)
+                matrix = np.array(matrix)
+                length = matrix.shape[1]
+            assert matrix.shape[0] == 248 , "This math data does not have 248 channels, but {} instead".format(matrix.shape[0])
+            math_matrix = np.column_stack((math_matrix, matrix))
+            
+        if "memory" in files_to_load[i]:
+            with h5py.File(files_to_load[i],'r') as f:
+                dataset_name = get_dataset_name(files_to_load[i])
+                matrix = f.get(dataset_name)
+                matrix = np.array(matrix)
+                length = matrix.shape[1]
+            assert matrix.shape[0] == 248 , "This memory data does not have 248 channels, but {} instead".format(matrix.shape[0])
+            memory_matrix = np.column_stack((memory_matrix, matrix))
+            
+        if "motor" in files_to_load[i]:
+            with h5py.File(files_to_load[i],'r') as f:
+                dataset_name = get_dataset_name(files_to_load[i])
+                matrix = f.get(dataset_name)
+                matrix = np.array(matrix)
+            assert matrix.shape[0] == 248 , "This motor data does not have 248 channels, but {} instead".format(matrix.shape[0])
+            motor_matrix = np.column_stack((motor_matrix, matrix))
+        matrix = None
+
+    x_rest,y_rest = preprocess_data_type(rest_matrix, window_size) 
+    rest_matrix = None
+    y_rest = y_rest*0
+
+    x_math,y_math = preprocess_data_type(math_matrix,window_size)
+    math_matrix = None
+    gc.collect()
+
+    x_mem,y_mem = preprocess_data_type(memory_matrix,window_size)
+    memory_matrix = None
+    y_mem = y_mem * 2
+   
+    x_motor,y_motor = preprocess_data_type(motor_matrix,window_size)
+    motor_matrix = None
+    y_motor = y_motor * 3
+    gc.collect()
+
+    dict_list = []
+    
+    for i in range(window_size):
+        dict_list.append({0:x_rest[i], 1:x_math[i], 2:x_mem[i], 3:x_motor[i]})
+        x_rest[i]= None
+        x_math[i]= None
+        x_mem[i]= None
+        x_motor[i]= None
+        gc.collect()
+ 
+    inputs = []
+    for i in range(window_size):
+        inputs.append(np.random.rand(1,20,21))
+
+    for i in range(number_classes):
+        for j in range(window_size):
+            if dict_list[j][i].shape[0]>0:
+                inputs[j]=np.concatenate((inputs[j],dict_list[j][i]))
+                
+    dict_list = None
+    gc.collect()
+    
+    for i in range(window_size):
+        inputs[i] = np.delete(inputs[i],0,0)
+        inputs[i] = np.reshape(inputs[i],(inputs[i].shape[0],20,21,1))
+    
+    dict_y = {0:y_rest,1:y_math,2:y_mem,3:y_motor}
+    
+    y = np.random.rand(1,1)
+    for i in range(number_classes):
+        if dict_y[i].shape[0]>0:
+            y = np.concatenate((y,dict_y[i]))
+
+
+    y = np.delete(y,0,0)
+
+    inputs[0],inputs[1],inputs[2],inputs[3],inputs[4],inputs[5],inputs[6],inputs[7],inputs[8],inputs[9],y = shuffle(inputs[0],inputs[1],inputs[2],inputs[3],inputs[4],inputs[5],inputs[6],inputs[7],inputs[8],inputs[9],y,random_state=42)
+    
+    x_length = inputs[0].shape[0]
+    for i in range(x_length):
+        for j in range(window_size):
+            temp = inputs[j][i]
+            inside = temp[:,:,0]
+            norm = normalize_matrix(inside)
+            inputs[j][i][:,:,0] = norm
+
+    temp = None
+    inside = None
+    norm = None
+    gc.collect()
+
+    print("part final dict assignment")
+    data_dict = {'input1' : inputs[0], 'input2' : inputs[1],'input3' : inputs[2], 'input4': inputs[3], 'input5' : inputs[4],
+                 'input6' : inputs[5], 'input7' : inputs[6],'input8' : inputs[7], 'input9': inputs[8], 'input10' : inputs[9]}
+    
+    inputs = None
+    gc.collect()
+    y = to_categorical(y,number_classes)
+
+    return data_dict,y
     
     
     
