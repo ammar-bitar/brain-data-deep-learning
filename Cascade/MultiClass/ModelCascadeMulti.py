@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, LSTM, Dropout, concatenate, Flatten, Dense, Input
+from tensorflow.keras.layers import Conv2D, LSTM, Dropout, concatenate, Flatten, Dense, Input, Lambda
 
 import tensorflow
 
@@ -67,7 +67,8 @@ class Cascade:
           dense = Dense(self.dense_nodes, activation = self.dense_activation,name = str(i+1)+"dense")(flat)
           dense2 = Dropout(self.dense_dropout,name = str(i+1)+"dropout")(dense)
 
-          dense2 = tensorflow.expand_dims(dense2,axis=1)
+          # dense2 = tensorflow.expand_dims(dense2,axis=1)
+          dense2 = Lambda(lambda X: tensorflow.expand_dims(X, axis=1))(dense2)
           convs.append(dense2)
       
       merge = concatenate(convs,axis=1,name = "merge")  
@@ -120,4 +121,4 @@ def test_cascade_model():
     cascade_model = cascade_object.model
     print(cascade_model.summary())
     
-test_cascade_model()
+# test_cascade_model()
