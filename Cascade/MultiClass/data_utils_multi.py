@@ -384,7 +384,6 @@ def load_overlapped_data(file_dirs):
                 dataset_name = get_dataset_name(files_to_load[i])
                 matrix = f.get(dataset_name)
                 matrix = np.array(matrix)
-                length = matrix.shape[1]
             assert matrix.shape[0] == 248 , "This rest data does not have 248 channels, but {} instead".format(matrix.shape[0])
             rest_matrix = np.column_stack((rest_matrix, matrix))
 
@@ -393,7 +392,6 @@ def load_overlapped_data(file_dirs):
                 dataset_name = get_dataset_name(files_to_load[i])
                 matrix = f.get(dataset_name)
                 matrix = np.array(matrix)
-                length = matrix.shape[1]
             assert matrix.shape[0] == 248 , "This math data does not have 248 channels, but {} instead".format(matrix.shape[0])
             math_matrix = np.column_stack((math_matrix, matrix))
             
@@ -402,7 +400,6 @@ def load_overlapped_data(file_dirs):
                 dataset_name = get_dataset_name(files_to_load[i])
                 matrix = f.get(dataset_name)
                 matrix = np.array(matrix)
-                length = matrix.shape[1]
             assert matrix.shape[0] == 248 , "This memory data does not have 248 channels, but {} instead".format(matrix.shape[0])
             memory_matrix = np.column_stack((memory_matrix, matrix))
             
