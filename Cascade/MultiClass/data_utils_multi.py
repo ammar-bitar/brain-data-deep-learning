@@ -375,7 +375,7 @@ def load_overlapped_data(file_dirs):
     window_size = 10
 
     files_to_load = file_dirs
-    print("number of files to load: {}".format(len(files_to_load)))
+    #print("number of files to load: {}".format(len(files_to_load)))
 
     
     for i in range(len(files_to_load)):
@@ -480,7 +480,7 @@ def load_overlapped_data(file_dirs):
     norm = None
     gc.collect()
 
-    print("part final dict assignment")
+#    print("part final dict assignment")
     data_dict = {'input1' : inputs[0], 'input2' : inputs[1],'input3' : inputs[2], 'input4': inputs[3], 'input5' : inputs[4],
                  'input6' : inputs[5], 'input7' : inputs[6],'input8' : inputs[7], 'input9': inputs[8], 'input10' : inputs[9]}
     

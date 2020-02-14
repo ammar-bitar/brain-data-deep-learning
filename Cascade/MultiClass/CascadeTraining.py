@@ -166,13 +166,18 @@ def on_epoch_end(epoch, accuracy, loss, val_accuracy, val_loss,experiment_number
         append_to_epochs_file(experiment_number,epoch, accuracy, loss, val_accuracy, val_loss)
         model_checkpoint(experiment_number, model, val_accuracy, epoch)
     except Exception as e:
-        print("Failed to append in epoch file or to save the weights ...")
+        print("Failed to append in epoch file or saving weights...")
         print("Exception error: ",str(e))
 
+def model_save(experiment_number,model):
+    exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
+    check_point_path = exp_path+"/model{}.h5".format(experiment_number)
+    model.save(check_point_path)
+    
 def model_checkpoint(experiment_number,model,validation_accuracy,epoch):
     exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
-    check_point_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{:03d}-val_acc_{:.3f}.hdf5'.format(epoch,validation_accuracy)
-    model.save(check_point_path)
+    checkpoint_path = exp_path+"/checkpoints" + '/checkpoint-epoch_{:03d}-val_acc_{:.3f}.hdf5'.format(epoch,validation_accuracy)
+    model.save_weights(checkpoint_path)
 
 def append_to_summary_file(model_object, experiment_number):
         filename = "Experiments/Cascade/Experiment"+str(experiment_number)+"/summary_model"+str(experiment_number)+".txt"
@@ -466,8 +471,9 @@ def hybrid_training(setup):
     
     experiment_number = on_train_begin(True,cascade_attention_object)
     for epoch in range(num_epochs):
-        print("\n\n>>>>>>>>   || Epoch",epoch+1,"||   <<<<<<<<\n")
+        print("\n\n Epoch",epoch+1," \n")
         for subject in subjects:
+            start_subject_time = time.time()
             print("-- Training on subject", subject)
             subject_files_train = []
             for item in train_files_dirs:
@@ -525,11 +531,15 @@ def hybrid_training(setup):
             input9 = None
             input10 = None
             
+            training_end_subject = time.time()
+            subj_train_timespan = training_end_subject - start_subject_time
+            print("Timespan subject training is : {}".format(subj_train_timespan))
+            
             
             
 #            with tf.device('/device:GPU:0'):
             history = cascade_model.fit(X_train, Y_train, batch_size = batch_size, epochs = 1, 
-                                    verbose = 1, validation_data=(X_validate, Y_validate), 
+                                    verbose = 2, validation_data=(X_validate, Y_validate), 
                                     callbacks=None)
             history_dict = history.history
             accuracies_temp_train.append(history_dict['acc'][0])#its because its a list of 1 element
@@ -537,10 +547,10 @@ def hybrid_training(setup):
             accuracies_temp_val.append(history_dict['val_acc'][0])
             losses_temp_val.append(history_dict['val_loss'][0])
             #Freeing memory
-            del X_train
-            del Y_train
-            del X_validate
-            del Y_validate
+            X_train = None
+            Y_train = None
+            X_validate = None
+            Y_validate = None
             gc.collect()
         
         print("Epoch {:03d}".format(epoch))
@@ -571,14 +581,13 @@ def hybrid_training(setup):
                         average_accuracy_epoch_validate, average_loss_epoch_validate, experiment_number, cascade_model)
 
         print("Timespan training before testing: {}".format(time.time()-start_time))
-#        if epoch % 2 == 0 and epoch > 0:
-        if epoch == 0:
+        if (epoch+1) % 2 == 0 :
             start_test = time.time()
             print("Testing on subjects")
             accuracies_temp = []
             #Creating dataset for testing
             for subject in list_subjects_test:
-                print("-Reading data from subject", subject)
+                print("Reading data from subject", subject)
                 subject_files_test = []
                 for item in test_files_dirs:
                         if subject in item:
@@ -589,7 +598,7 @@ def hybrid_training(setup):
                 print(number_files_per_worker)
                 X_test, Y_test = multi_processing(subject_files_test,number_files_per_worker,number_workers_testing)
 
-                print("\n\n>>Evaluation cross-subject: ")
+                print("\n\nEvaluation cross-subject: ")
                 result = cascade_model.evaluate(X_test, Y_test, batch_size = batch_size)
                 
                 print("Timespan of testing 1 subject : {}".format(time.time() - start_test))
@@ -601,17 +610,18 @@ def hybrid_training(setup):
             print("Recording the average testing accuracy in a file")
             append_average_test(experiment_number,epoch,avg)
 
-            del X_test
-            del Y_test
+            X_test = None
+            Y_test = None
                 
-        stop_time = time.time()
-        time_span = stop_time - start_time
-        print()
-        print()
-        print("training took {:.2f} seconds".format(time_span))
-        on_train_end(experiment_number)
-        save_training_time(experiment_number, time_span)
-        write_comment(experiment_number,comment)
+    stop_time = time.time()
+    time_span = stop_time - start_time
+    print()
+    print()
+    print("training took {:.2f} seconds".format(time_span))
+    model_save(experiment_number,cascade_model)
+    on_train_end(experiment_number)
+    save_training_time(experiment_number, time_span)
+    write_comment(experiment_number,comment)
 
 import argparse
 parser = argparse.ArgumentParser()
