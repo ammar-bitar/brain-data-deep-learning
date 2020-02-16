@@ -532,15 +532,13 @@ def hybrid_training(setup):
             input10 = None
             
             training_end_subject = time.time()
-            subj_train_timespan = training_end_subject - start_subject_time
-            print("Timespan subject training is : {}".format(subj_train_timespan))
-            
-            
             
 #            with tf.device('/device:GPU:0'):
             history = cascade_model.fit(X_train, Y_train, batch_size = batch_size, epochs = 1, 
                                     verbose = 2, validation_data=(X_validate, Y_validate), 
                                     callbacks=None)
+            subj_train_timespan = training_end_subject - start_subject_time
+            print("Timespan subject training is : {}".format(subj_train_timespan))
             history_dict = history.history
             accuracies_temp_train.append(history_dict['acc'][0])#its because its a list of 1 element
             losses_temp_train.append(history_dict['loss'][0])
