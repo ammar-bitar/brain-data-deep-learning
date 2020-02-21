@@ -1,5 +1,5 @@
 import time
-import tensorflow as tf
+from tensorflow.keras.optimizers import Adam
 from ModelCascadeMulti import Cascade
 from os import listdir
 from os.path import isfile, join
@@ -12,8 +12,6 @@ import re
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from multiprocessing import Pool
-
-
 
 
 def create_summary_file(experiment_number):
@@ -467,7 +465,7 @@ def hybrid_training(setup):
     #mirrored_strategy = tf.distribute.MirroredStrategy()
     #with mirrored_strategy.scope():
     cascade_model = cascade_attention_object.cascade_model()
-    cascade_model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001), loss="categorical_crossentropy", metrics=["accuracy"])
+    cascade_model.compile(optimizer = Adam(learning_rate=0.0001), loss="categorical_crossentropy", metrics=["accuracy"])
     
     experiment_number = on_train_begin(True,cascade_attention_object)
     for epoch in range(num_epochs):
@@ -578,9 +576,8 @@ def hybrid_training(setup):
         on_epoch_end(epoch, average_accuracy_epoch_train, average_loss_epoch_train, \
                         average_accuracy_epoch_validate, average_loss_epoch_validate, experiment_number, cascade_model)
 
-        print("Timespan training before testing: {}".format(time.time()-start_time))
         if (epoch+1) % 2 == 0 :
-            start_test = time.time()
+            start_testing = time.time()
             print("Testing on subjects")
             accuracies_temp = []
             #Creating dataset for testing
@@ -599,10 +596,10 @@ def hybrid_training(setup):
                 print("\n\nEvaluation cross-subject: ")
                 result = cascade_model.evaluate(X_test, Y_test, batch_size = batch_size)
                 
-                print("Timespan of testing 1 subject : {}".format(time.time() - start_test))
                 accuracies_temp.append(result[1])
                 print("Recording the testing accuracy of '{}' in a file".format(subject))
                 append_individual_test(experiment_number,epoch,subject,result[1])
+                print("Timespan of testing is : {}".format(time.time() - start_testing))
             avg = sum(accuracies_temp)/len(accuracies_temp)
             print("Average testing accuracy : {0:.2f}".format(avg))
             print("Recording the average testing accuracy in a file")
