@@ -1,9 +1,6 @@
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, Dense, Flatten, Input, LSTM, concatenate, Permute, Add
 
-#import tensorflow as tf
-# dropout
-
 class Parallel:
     def __init__(self, window_size,conv1_filters,conv2_filters,conv3_filters,
                  conv1_kernel_shape,conv2_kernel_shape,conv3_kernel_shape,

@@ -1,5 +1,5 @@
 import time
-from parallel_model import Parallel
+from ModelParallel import Parallel
 from os import listdir
 from os.path import isfile, join
 import numpy as np
@@ -399,6 +399,7 @@ def hybrid_training(setup):
     for epoch in range(num_epochs):
         print("\n\n Epoch",epoch+1," \n")
         for subject in subjects:
+            start_subject_time = time.time()
             print("-- Training on subject", subject)
             subject_files_train = []
             for item in train_files_dirs:
@@ -481,6 +482,8 @@ def hybrid_training(setup):
             history = model.fit(X_train, Y_train, batch_size = batch_size, epochs = 1, 
                                     verbose = 2, validation_data=(X_validate, Y_validate), 
                                     callbacks=None)
+            subj_train_timespan = time.time() - start_subject_time
+            print("Timespan subject training is : {}".format(subj_train_timespan))
             history_dict = history.history
             accuracies_temp_train.append(history_dict['acc'][0])#its because its a list of 1 element
             losses_temp_train.append(history_dict['loss'][0])
