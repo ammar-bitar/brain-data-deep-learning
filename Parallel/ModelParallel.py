@@ -122,5 +122,5 @@ def test_parallel_model():
     model = parallel_object.model
     print(model.summary())
     
-test_parallel_model()
+#test_parallel_model()
     
