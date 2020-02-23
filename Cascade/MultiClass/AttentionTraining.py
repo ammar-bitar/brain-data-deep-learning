@@ -572,13 +572,14 @@ def hybrid_training(setup):
                         average_accuracy_epoch_validate, average_loss_epoch_validate, experiment_number, cascade_model)
 
 
-#        if (epoch+1) % 2 == 0 :
-        if epoch == 0:
-            start_testing = time.time()
+        if (epoch+1) % 2 == 0 :
+#        if epoch == 0:
+#            start_testing = time.time()
             print("Testing on subjects")
             accuracies_temp = []
             #Creating dataset for testing
             for subject in list_subjects_test:
+                start_testing = time.time()
                 print("Reading data from subject", subject)
                 subject_files_test = []
                 for item in test_files_dirs:

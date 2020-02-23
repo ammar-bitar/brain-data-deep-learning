@@ -529,13 +529,13 @@ def hybrid_training(setup):
             input9 = None
             input10 = None
             
-            training_end_subject = time.time()
+#            training_end_subject = 
             
 #            with tf.device('/device:GPU:0'):
             history = cascade_model.fit(X_train, Y_train, batch_size = batch_size, epochs = 1, 
                                     verbose = 2, validation_data=(X_validate, Y_validate), 
                                     callbacks=None)
-            subj_train_timespan = training_end_subject - start_subject_time
+            subj_train_timespan = time.time() - start_subject_time
             print("Timespan subject training is : {}".format(subj_train_timespan))
             history_dict = history.history
             accuracies_temp_train.append(history_dict['acc'][0])#its because its a list of 1 element
@@ -577,11 +577,12 @@ def hybrid_training(setup):
                         average_accuracy_epoch_validate, average_loss_epoch_validate, experiment_number, cascade_model)
 
         if (epoch+1) % 2 == 0 :
-            start_testing = time.time()
+            
             print("Testing on subjects")
             accuracies_temp = []
             #Creating dataset for testing
             for subject in list_subjects_test:
+                start_testing = time.time()
                 print("Reading data from subject", subject)
                 subject_files_test = []
                 for item in test_files_dirs:
