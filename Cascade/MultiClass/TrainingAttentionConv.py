@@ -1,6 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 10 21:36:43 2020
+
+@author: smail
+"""
+
 import time
 from tensorflow.keras.optimizers import Adam
-from AttentionModelCascadeMulti import AttentionCascadeMulti
+from AttentionConvCascade import AttentionCascadeConv
 from os import listdir
 from os.path import isfile, join
 import numpy as np
@@ -170,11 +177,6 @@ def model_save(experiment_number,model):
     exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
     check_point_path = exp_path+"/model{}.h5".format(experiment_number)
     model.save(check_point_path)
-    
-#def model_save_after_subject(experiment_number,model,subject,epoch):
-#    exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
-#    check_point_path = exp_path+"/model{}.h5".format(experiment_number)
-    
     
 def model_checkpoint(experiment_number,model,validation_accuracy,epoch):
     exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
@@ -410,7 +412,7 @@ dense3_activation = "relu"
 final_dropout = 0.5
 
 
-cascade_attention_object = AttentionCascadeMulti(window_size,conv1_filters,conv2_filters,conv3_filters,
+cascade_attention_object = AttentionCascadeConv(window_size,conv1_filters,conv2_filters,conv3_filters,
                 conv1_kernel_shape,conv2_kernel_shape,conv3_kernel_shape,
                 padding1,padding2,padding3,conv1_activation,conv2_activation,
                 conv3_activation,dense_nodes,dense_activation,dense_dropout,
@@ -533,7 +535,7 @@ def hybrid_training(setup):
             
 #            with tf.device('/device:GPU:0'):
             history = cascade_model.fit(X_train, Y_train, batch_size = batch_size, epochs = 1, 
-                                    verbose = 2, validation_data=(X_validate, Y_validate), 
+                                    verbose = 1, validation_data=(X_validate, Y_validate), 
                                     callbacks=None)
             subj_train_timespan = time.time() - start_subject_time
             print("Saving the model ...")
@@ -646,6 +648,3 @@ else:
     
     
        
-
-
-
