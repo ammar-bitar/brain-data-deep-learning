@@ -645,6 +645,21 @@ else:
     setup = 0
     hybrid_training(setup)
     
+#Snippet might come useful later
+#import tensorflow as tf
+#print(type(tf.__version__))
+#version_tf = float(tf.__version__.split('.')[0])
+#if(version_tf >= 2):
+#  print(history_dict['accuracy'][0])#its because its a list of 1 element
+#  print(history_dict['loss'][0])
+#  print(history_dict['val_accuracy'][0])
+#  print(history_dict['val_loss'][0])
+#else:
+#  print(history_dict['acc'][0])
+#  print(history_dict['loss'][0])
+#  print(history_dict['val_acc'][0])
+#  print(history_dict['val_loss'][0])
+    
     
     
        
