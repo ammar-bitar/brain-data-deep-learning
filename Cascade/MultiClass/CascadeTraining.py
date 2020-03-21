@@ -169,8 +169,17 @@ def on_epoch_end(epoch, accuracy, loss, val_accuracy, val_loss,experiment_number
 
 def model_save(experiment_number,model):
     exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
-    check_point_path = exp_path+"/model{}.h5".format(experiment_number)
-    model.save(check_point_path)
+    try:
+        check_point_path = exp_path+"/model{}.h5".format(experiment_number)
+        model.save(check_point_path)
+    except:
+        print("Couldn't save in h5 format, trying tf format")
+    
+    try:
+        check_point_path = exp_path+"/model{}.tf".format(experiment_number)
+        model.save(check_point_path,save_format="tf")
+    except:
+        print("couldn't save in tf format")
     
 def model_checkpoint(experiment_number,model,validation_accuracy,epoch):
     exp_path = "Experiments/Cascade/Experiment" + str(experiment_number)
